@@ -1,1 +1,13 @@
+body {
+    background-image: url('backgroundmenu.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
 
+.titulomenu {
+    font-family: 'Arial', sans-serif;
+    font-size: 36px;
+    color: #ffffff;
+    text-align: Absolute;
+    margin-top: 50px;
+}
