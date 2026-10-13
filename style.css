@@ -1,3 +1,7 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html {
     height: 100%;
     margin: 0;
@@ -10,23 +14,27 @@ body {
     font-family: 'VT323', monospace;
 }
 
-.menu-container {
+
+.stage {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background-image: url('backgroundmenu.svg');
+    background-image: url('imagens/backgroundmenu.svg');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     overflow: hidden;
 }
 
-.background {
+
+.overlay {
     position: absolute;
     inset: 0;
     background: rgba(10, 6, 20, 0.55);
     z-index: 0;
 }
+
+/* Menu */
 
 .titulomenu {
     position: absolute;
@@ -45,6 +53,7 @@ body {
     from { opacity: 0; transform: translateY(-14px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
 
 .menu {
     position: absolute;
@@ -71,6 +80,11 @@ body {
 }
 
 
+.item-link {
+    color: inherit;
+    text-decoration: none;
+}
+
 .item:nth-child(1) { animation-delay: 0.4s; }
 .item:nth-child(2) { animation-delay: 0.6s; }
 .item:nth-child(3) { animation-delay: 0.8s; }
@@ -81,25 +95,132 @@ body {
     to   { opacity: 1; transform: translateX(0); }
 }
 
-.item:hover,
-.item:focus-visible {
-    color: #b9a2ff;
-    transform: translateX(16px);
-    text-shadow: 0 0 10px rgba(185, 162, 255, 0.9);
-}
 
-.item::after {
-    content: '◄';
+/* Salvamento */
+
+.titulo-salvamento {
     position: absolute;
-    right: -34px;
-    top: 50%;
-    transform: translate(-6px, -50%);
+    top: 3%;
+    left: 26.5%;
+    z-index: 1;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(22px, 3.8vw, 48px);
+    color: #ffffff;
+    margin: 0;
     opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    animation: apareceTitulo 1s ease forwards;
 }
 
-.item:hover::after,
-.item:focus-visible::after {
-    opacity: 1;
-    transform: translate(0, -50%);
+.slots {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
 }
+
+
+
+.slot-moldura {
+    position: absolute;
+    top: 13.6%;
+    width: 37.8%;
+    height: 72.7%;
+    pointer-events: none;
+    opacity: 0;
+    animation: apareceSlot 0.6s ease forwards;
+}
+
+.moldura-1 { left: -2%;    animation-delay: 0.3s; }
+.moldura-2 { left: 31.1%;  animation-delay: 0.45s; }
+.moldura-3 { left: 64.1%;  animation-delay: 0.6s; }
+
+@keyframes apareceSlot {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.slot-numero {
+    position: absolute;
+    top: 68.9%;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(32px, 5.6vw, 72px);
+    color: #ffffff;
+    opacity: 0;
+    animation: apareceTitulo 0.6s ease 0.6s forwards;
+}
+
+.numero-1 { left: 3%; }
+.numero-2 { left: 35.8%; }
+.numero-3 { left: 68.6%; }
+
+.slot-tempo {
+    position: absolute;
+    top: 19.2%;
+    left: 3%;
+    margin: 0;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(14px, 2.1vw, 28px);
+    color: #ffffff;
+    opacity: 0;
+    animation: apareceTitulo 0.6s ease 0.6s forwards;
+}
+
+.slot-capitulo {
+    position: absolute;
+    top: 69.2%;
+    left: 15.7%;
+    width: 17.7%;
+    margin: 0;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(14px, 2.1vw, 28px);
+    line-height: 1.15;
+    color: #ffffff;
+    opacity: 0;
+    animation: apareceTitulo 0.6s ease 0.6s forwards;
+}
+
+.slot-novo-jogo {
+    position: absolute;
+    top: 43.6%;
+    width: 35%;
+    margin: 0;
+    text-align: center;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(22px, 3.3vw, 40px);
+    color: #ffffff;
+    opacity: 0;
+}
+
+.novo-jogo-2 { left: 31.1%; animation: apareceTitulo 0.6s ease 0.75s forwards; }
+.novo-jogo-3 { left: 64.1%; animation: apareceTitulo 0.6s ease 0.9s forwards; }
+
+
+.icone-acao {
+    position: absolute;
+    width: auto;
+    opacity: 0;
+    animation: apareceTitulo 0.6s ease 0.7s forwards;
+}
+
+.icone-reiniciar { top: 86.5%; left: 8.1%;  height: clamp(22px, 4.06vw, 52px); }
+.icone-lixeira   { top: 84.7%; left: 25.8%; height: clamp(40px, 7.27vw, 93px); }
+
+.voltar-inicio {
+    position: absolute;
+    right: 4%;
+    bottom: 9%;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    color: #ffffff;
+    text-decoration: none;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(22px, 3.8vw, 48px);
+    opacity: 0;
+    animation: apareceTitulo 0.6s ease 0.8s forwards;
+}
+
+.seta-voltar {
+    color: #a855f7;
+}
+
