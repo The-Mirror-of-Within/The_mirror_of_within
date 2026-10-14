@@ -3,18 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="imagens/favicon.svg">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&family=Goldman:wght@400;700&display=swap" rel="stylesheet">
-    <title>The Mirror of Within — Jogo Rodando</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&family=Goldman:wght@400;700&family=Gluten:wght@400..900&display=swap" rel="stylesheet">
+    <title>The Mirror of Within — Jogo</title>
 </head>
-<body>
-    <div class="stage stage-jogo-rodando">
+<body data-tela="jogo">
+    <main class="stage stage-jogo-rodando">
         <p class="texto-jogo-rodando">
-            jogo rodando<br>
-            (pressione “ESC” para pausar e “Tab” para o inventário)
+            <span data-i18n="jogo.rodando">jogo rodando</span><br>
+            <span data-i18n="jogo.dica">(pressione “ESC” para pausar e “Tab” para o inventário)</span>
         </p>
-    </div>
+        <p class="aviso-tela" id="aviso" role="status"></p>
+    </main>
+
+    <dialog class="modal" id="pausa" aria-labelledby="pausa-titulo">
+        <h2 id="pausa-titulo" data-i18n="pausa.titulo">Pausado</h2>
+        <ul class="pausa-lista">
+            <li><button type="button" id="p-continuar" data-i18n="pausa.continuar">CONTINUAR</button></li>
+            <li><a href="opcoes.html" id="p-opcoes" data-i18n="pausa.opcoes">OPÇÕES</a></li>
+            <li><button type="button" id="p-salvar" data-i18n="pausa.salvar">SALVAR</button></li>
+            <li><a href="salvamento.html" data-i18n="pausa.carregar">CARREGAR</a></li>
+            <li><a href="index.html" data-i18n="pausa.sair">SAIR DO JOGO</a></li>
+        </ul>
+    </dialog>
+    <script src="script.js"></script>
 </body>
 </html>
