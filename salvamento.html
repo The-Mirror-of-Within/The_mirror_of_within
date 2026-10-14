@@ -3,45 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="imagens/favicon.svg">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&family=Goldman:wght@400;700&family=Gluten:wght@400..900&display=swap" rel="stylesheet">
     <title>The Mirror of Within — Salvamento</title>
 </head>
-<body>
-    <div class="stage">
-        <div class="overlay"></div>
+<body data-tela="salvamento">
+    <main class="stage stage-salvamento">
+        <div class="overlay" aria-hidden="true"></div>
 
-        <h1 class="titulo-salvamento">Selecione um jogo</h1>
+        <h1 class="titulo-salvamento" data-i18n="salv.titulo">Selecione um jogo</h1>
 
-        <div class="slots">
-
-          
-            <img class="slot-moldura moldura-1" src="imagens/moldura-slot.png" alt="">
-            <img class="slot-moldura moldura-2" src="imagens/moldura-slot.png" alt="">
-            <img class="slot-moldura moldura-3" src="imagens/moldura-slot.png" alt="">
-
-        
-            <span class="slot-numero numero-1">1.</span>
-            <p class="slot-tempo">xxh xxmin</p>
-            <p class="slot-capitulo">Capítulo atual</p>
-            <img class="icone-acao icone-reiniciar" src="imagens/icone-reiniciar.png" alt="Reiniciar capítulo">
-            <img class="icone-acao icone-lixeira" src="imagens/icone-lixeira.png" alt="Apagar save">
-
-           
-            <span class="slot-numero numero-2">2.</span>
-            <p class="slot-novo-jogo novo-jogo-2">New game</p>
-
-            
-            <span class="slot-numero numero-3">3.</span>
-            <p class="slot-novo-jogo novo-jogo-3">New game</p>
-
-        </div>
+        <ol class="slots" id="slots">
+            <li class="slot slot-1" data-slot="0"></li>
+            <li class="slot slot-2" data-slot="1"></li>
+            <li class="slot slot-3" data-slot="2"></li>
+        </ol>
 
         <a class="voltar-inicio" href="index.html">
-            <span class="seta-voltar">◄</span> Início
+            <span class="seta-voltar" aria-hidden="true">◄</span> <span data-i18n="salv.inicio">Início</span>
         </a>
-    </div>
+
+        <p class="aviso-tela" id="aviso" role="status"></p>
+    </main>
+
+    <dialog class="modal" id="modal" aria-labelledby="modal-texto">
+        <form method="dialog">
+            <p id="modal-texto"></p>
+            <div class="modal-botoes">
+                <button type="submit" value="ok" id="modal-ok"></button>
+                <button type="submit" value="cancel" id="modal-cancelar"></button>
+            </div>
+        </form>
+    </dialog>
+    <script src="script.js"></script>
 </body>
 </html>
