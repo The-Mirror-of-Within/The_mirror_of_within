@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="imagens/favicon.svg">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&family=Goldman:wght@400;700&family=Gluten:wght@400..900&display=swap" rel="stylesheet">
+    <title>The Mirror of Within — Opções</title>
+</head>
+<body data-tela="opcoes">
+    <main class="stage stage-opcoes">
+        <a class="voltar-opcoes" id="voltar" href="index.html" data-i18n-aria="op.voltar" aria-label="Voltar"></a>
+
+        <div class="painel-opcoes">
+            <h1 class="somente-leitor" data-i18n="op.titulo">Opções</h1>
+
+            <div class="abas" role="tablist" aria-label="Seções das opções">
+                <button class="aba aba-ativa" type="button" role="tab" id="aba-controles" aria-controls="painel-controles" aria-selected="true" data-i18n="op.controles">Controles</button>
+                <button class="aba" type="button" role="tab" id="aba-sistema" aria-controls="painel-sistema" aria-selected="false" tabindex="-1" data-i18n="op.sistema">Sistema</button>
+            </div>
+
+            <form class="caixa-opcoes" id="form-opcoes" novalidate>
+                <div class="botoes-opcoes">
+                    <button class="botao-opcao botao-ativo" type="submit" data-i18n="op.salvar">SALVAR</button>
+                    <button class="botao-opcao" type="button" id="cancelar" data-i18n="op.cancelar">CANCELAR</button>
+                    <button class="botao-opcao" type="button" id="restaurar" data-i18n="op.restaurar">RESTAURAR</button>
+                </div>
+                <p class="aviso-form" id="aviso" role="status"></p>
+
+                <div id="painel-controles" role="tabpanel" aria-labelledby="aba-controles">
+                    <table class="tabela-controles">
+                        <caption class="somente-leitor" data-i18n="op.legenda">Tecla do teclado e botão do controle de cada ação</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col" data-i18n="op.acoes">AÇÕES</th>
+                                <th scope="col" data-i18n="op.teclado">TECLADO</th>
+                                <th scope="col" data-i18n="op.controle">CONTROLE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row" data-i18n="acao.frente">Movimento (Frente)</th>
+                            <td><button class="caixa-tecla tecla" type="button" data-acao="frente"></button></td>
+                            <td><div class="caixa-tecla">D-Pad <span role="img" aria-label="para cima">↑</span></div></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" data-i18n="acao.tras">Movimento (Trás)</th>
+                            <td><button class="caixa-tecla tecla" type="button" data-acao="tras"></button></td>
+                            <td><div class="caixa-tecla">D-Pad <span role="img" aria-label="para baixo">↓</span></div></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" data-i18n="acao.esquerda">Movimento (Esquerda)</th>
+                            <td><button class="caixa-tecla tecla" type="button" data-acao="esquerda"></button></td>
+                            <td><div class="caixa-tecla">D-Pad <span role="img" aria-label="para a esquerda">←</span></div></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" data-i18n="acao.direita">Movimento (Direita)</th>
+                            <td><button class="caixa-tecla tecla" type="button" data-acao="direita"></button></td>
+                            <td><div class="caixa-tecla">D-Pad <span role="img" aria-label="para a direita">→</span></div></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" data-i18n="acao.interagir">Interagir</th>
+                            <td><button class="caixa-tecla tecla" type="button" data-acao="interagir"></button></td>
+                            <td><div class="caixa-tecla"><span class="simbolo-circulo" role="img" aria-label="botão círculo">O</span></div></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" data-i18n="acao.inventario">Abrir Inventário</th>
+                            <td><button class="caixa-tecla tecla" type="button" data-acao="inventario"></button></td>
+                            <td><div class="caixa-tecla"><span class="simbolo-triangulo" role="img" aria-label="botão triângulo">Δ</span></div></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="painel-sistema" role="tabpanel" aria-labelledby="aba-sistema" hidden>
+                    <ul class="lista-sistema">
+                        <li>
+                            <label for="musica" data-i18n="sis.musica">Música:</label>
+                            <div class="pilula"><input type="range" id="musica" min="0" max="100" step="5"><output for="musica" id="musica-val"></output></div>
+                        </li>
+                        <li>
+                            <label for="efeitos" data-i18n="sis.efeitos">Efeitos Sonoros:</label>
+                            <div class="pilula"><input type="range" id="efeitos" min="0" max="100" step="5"><output for="efeitos" id="efeitos-val"></output></div>
+                        </li>
+                        <li>
+                            <span id="rot-tela" data-i18n="sis.tela">Tela Cheia:</span>
+                            <div class="pilula"><button type="button" id="tela-cheia" role="switch" aria-labelledby="rot-tela"></button></div>
+                        </li>
+                        <li>
+                            <span id="rot-idioma" data-i18n="sis.idioma">Idioma:</span>
+                            <div class="pilula"><button type="button" id="abrir-idioma" aria-haspopup="dialog" aria-describedby="rot-idioma"></button></div>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <dialog class="modal" id="dlg-idioma" aria-labelledby="idioma-titulo">
+        <div class="modal-topo">
+            <h2 id="idioma-titulo" data-i18n="sis.idioma-titulo">Idioma</h2>
+            <button type="button" id="fechar-idioma" data-i18n-aria="op.fechar" aria-label="Fechar">✕</button>
+        </div>
+        <ul class="pausa-lista">
+            <li><button type="button" data-lang="pt-BR">Português (BR)</button></li>
+            <li><button type="button" data-lang="en">English</button></li>
+        </ul>
+    </dialog>
+    <script src="script.js"></script>
+</body>
+</html>
