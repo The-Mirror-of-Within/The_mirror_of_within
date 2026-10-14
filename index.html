@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="imagens/favicon.svg">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&family=Goldman:wght@400;700&family=Gluten:wght@400..900&display=swap" rel="stylesheet">
     <title>The Mirror of Within</title>
 </head>
-<body>
-    <div class="stage">
-        <div class="overlay"></div>
+<body data-tela="menu">
+    <main class="stage">
+        <div class="overlay" aria-hidden="true"></div>
 
         <h1 class="titulomenu">The Mirror of Within</h1>
 
-        <ul class="menu">
-            <li class="item"><a class="item-link" href="novo-jogo.html">Novo Jogo</a></li>
-            <li class="item"><a class="item-link" href="salvamento.html">Carregar Jogo</a></li>
-            <li class="item">Opções</li>
-            <li class="item">Sair</li>
-        </ul>
-    </div>
+        <nav aria-label="Menu principal">
+            <ul class="menu">
+                <li class="item"><a class="item-link" href="salvamento.html" data-i18n="menu.novo">Novo Jogo</a></li>
+                <li class="item"><a class="item-link" href="salvamento.html" data-i18n="menu.carregar">Carregar Jogo</a></li>
+                <li class="item"><a class="item-link" href="opcoes.html" data-i18n="menu.opcoes">Opções</a></li>
+                <li class="item"><button class="item-link" type="button" id="sair" data-i18n="menu.sair">Sair</button></li>
+            </ul>
+        </nav>
 
+        <span class="setinha" id="setinha" aria-hidden="true">◄</span>
+        <p class="aviso-tela" id="aviso" role="status"></p>
+    </main>
+    <script src="script.js"></script>
 </body>
 </html>
