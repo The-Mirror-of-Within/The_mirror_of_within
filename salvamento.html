@@ -3,41 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="imagens/favicon.svg">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&family=Goldman:wght@400;700&family=Gluten:wght@400..900&display=swap" rel="stylesheet">
-    <title>The Mirror of Within — Salvamento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&display=swap" rel="stylesheet">
+    <title>The Mirror Within - Salvamento</title>
 </head>
-<body data-tela="salvamento">
+<body id="salvamento">
     <main class="stage stage-salvamento">
-        <div class="overlay" aria-hidden="true"></div>
+        <div class="overlay"></div>
 
-        <h1 class="titulo-salvamento" data-i18n="salv.titulo">Selecione um jogo</h1>
+        <h1 class="titulo-salvamento">Selecione um jogo</h1>
 
-        <ol class="slots" id="slots">
-            <li class="slot slot-1" data-slot="0"></li>
-            <li class="slot slot-2" data-slot="1"></li>
-            <li class="slot slot-3" data-slot="2"></li>
-        </ol>
+        <ol class="slots" id="slots"></ol>
 
         <a class="voltar-inicio" href="index.html">
-            <span class="seta-voltar" aria-hidden="true">◄</span> <span data-i18n="salv.inicio">Início</span>
+            <span class="seta-voltar">◄</span> Início
         </a>
 
-        <p class="aviso-tela" id="aviso" role="status"></p>
+        <p class="aviso-tela" id="aviso"></p>
     </main>
-
-    <dialog class="modal" id="modal" aria-labelledby="modal-texto">
-        <form method="dialog">
-            <p id="modal-texto"></p>
-            <div class="modal-botoes">
-                <button type="submit" value="ok" id="modal-ok"></button>
-                <button type="submit" value="cancel" id="modal-cancelar"></button>
-            </div>
-        </form>
-    </dialog>
     <script src="script.js"></script>
 </body>
 </html>
