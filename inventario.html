@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&display=swap" rel="stylesheet">
+    <title>The Mirror Within - Inventário</title>
+</head>
+<body id="inventario">
+    <main class="inventario-tela">
+        <div class="inventario-fundo"></div>
+
+        <header class="inventario-abas">
+            <button class="aba-inventario ativa" type="button" data-painel="itens">Itens</button>
+            <button class="aba-inventario" type="button" data-painel="missoes">Missões</button>
+            <button class="aba-inventario" type="button" data-painel="diario">Diário</button>
+            <a class="fechar-inventario" href="jogo-rodando.html" aria-label="Fechar">X</a>
+        </header>
+
+        <section class="painel-inventario painel-itens" id="painel-itens">
+            <div class="lista-coluna">
+                <div class="lista-itens" id="lista-itens"></div>
+                <p class="mensagem-inventario" id="mensagem-inventario"></p>
+                <div class="acoes-inventario">
+                    <button type="button" id="usar-item">Usar</button>
+                    <button type="button" id="examinar-item">Examinar</button>
+                    <button type="button" id="descartar-item">Descartar</button>
+                </div>
+                <p class="texto-inferior">Itens que você carrega.<br>Alguns são úteis.<br>Outros guardam lembranças.</p>
+            </div>
+
+            <div class="detalhe-coluna">
+                <div class="item-ilustracao" id="item-ilustracao">✿</div>
+                <h2 id="item-nome">Chá de Camomila</h2>
+                <p id="item-descricao"></p>
+                <p class="frase-item" id="item-frase"></p>
+                <div class="status-box">
+                    <h3>STATUS</h3>
+                    <p>♡ Empatia <span>●●○○○</span></p>
+                    <p>◆ Coragem <span>●●●○○</span></p>
+                    <p>✦ Esperança <span>●●○○○</span></p>
+                    <p>⌁ Cansaço <span>●○○○○</span></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="painel-inventario painel-missoes escondido" id="painel-missoes">
+            <div class="missoes-corpo">
+                <div class="missoes-lista" id="lista-missoes"></div>
+                <div class="missao-detalhe">
+                    <div class="missao-texto">
+                        <h2 id="missao-titulo">A Florista Silenciosa</h2>
+                        <p id="missao-descricao"></p>
+                        <p class="missao-local"><strong>Local:</strong><br><span id="missao-local"></span></p>
+                        <h3>Objetivos</h3>
+                        <ul id="missao-objetivos"></ul>
+                    </div>
+                    <aside class="ultima-pista">
+                        <strong>Última pista</strong>
+                        <p id="missao-pista"></p>
+                    </aside>
+                </div>
+            </div>
+            <div class="missoes-rodape">
+                <p>Cada pessoa carrega um mundo inteiro. Talvez, se eu entender, eu possa ajudar.</p>
+                <div class="acoes-missao">
+                    <span>Ver detalhes</span>
+                    <span>Marcar no mapa</span>
+                    <span>Voltar</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="painel-inventario painel-diario escondido" id="painel-diario">
+            <div class="diario-corpo">
+                <div class="diario-lista">
+                    <h2>Entradas</h2>
+                    <div id="lista-diario"></div>
+                </div>
+                <article class="pagina-diario">
+                    <h2 id="diario-data">12 de Agosto</h2>
+                    <p id="diario-texto"></p>
+                    <p class="diario-pista" id="diario-pista"></p>
+                </article>
+            </div>
+            <div class="diario-rodape">
+                <p>Escrever acalma. É como se as palavras colocassem as coisas de volta no lugar.</p>
+                <div class="adesivos-diario">
+                    <span>Adesivos (conquistas)</span>
+                    <div>✿ ◇ ? ? ? ? ?</div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
