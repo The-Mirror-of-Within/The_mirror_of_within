@@ -1,639 +1,1314 @@
-const CHAVE_SAVES = 'mirror_saves';
-const CHAVE_CONFIG = 'mirror_config';
-const CHAVE_SLOT = 'mirror_slot_atual';
-const CHAVE_ITENS = 'mirror_itens';
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
-/* Armazenamento */
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
 
-function pegarJSON(chave, padrao) {
-    const valor = localStorage.getItem(chave);
+body {
+    min-height: 100dvh;
+    overflow-x: hidden;
+    background: #0a0614;
+    color: #fff;
+    font-family: 'VT323', monospace;
+}
 
-    if (valor === null) {
-        return padrao;
+button,
+input,
+output {
+    font: inherit;
+    color: inherit;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.stage {
+    position: relative;
+    width: 100%;
+    min-height: 100dvh;
+    overflow: hidden;
+}
+
+.escondido {
+    display: none !important;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: rgba(10, 6, 20, 0.48);
+}
+
+.aviso-tela {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    bottom: 2%;
+    z-index: 20;
+    margin: 0;
+    text-align: center;
+    color: #f0e6f6;
+    font-size: clamp(17px, 2vw, 28px);
+}
+
+:focus-visible {
+    outline: 2px solid #c084fc;
+    outline-offset: 3px;
+}
+
+@keyframes tituloEntrada {
+    0% {
+        left: 60%;
+        opacity: 0;
+        transform: translateX(70px);
     }
-
-    try {
-        return JSON.parse(valor);
-    } catch (erro) {
-        return padrao;
+    35% {
+        opacity: 1;
+    }
+    100% {
+        left: 4%;
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
-function salvarJSON(chave, valor) {
-    localStorage.setItem(chave, JSON.stringify(valor));
+@keyframes menuEntrada {
+    0% {
+        left: 58%;
+        opacity: 0;
+        transform: translateX(80px);
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        left: 0;
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-function formatarTempo(segundos) {
-    const horas = String(Math.floor(segundos / 3600)).padStart(2, '0');
-    const minutos = String(Math.floor((segundos % 3600) / 60)).padStart(2, '0');
-    const resto = String(segundos % 60).padStart(2, '0');
-
-    return horas + ':' + minutos + ':' + resto;
+@keyframes aparece {
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-function configPadrao() {
-    return {
-        musica: 100,
-        efeitos: 100,
-        telaCheia: true
-    };
+@keyframes apareceBaixo {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cresce {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Menu */
 
-function iniciarMenu() {
-    const itens = document.querySelectorAll('.item');
-    const links = document.querySelectorAll('.item-link');
-    const aviso = document.getElementById('aviso');
-    let selecionado = 0;
+.stage-menu,
+.stage-salvamento {
+    background-image: url('imagens/Casa.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
 
-    function selecionar(indice) {
-        selecionado = indice;
-        aviso.textContent = '';
+.titulomenu {
+    position: absolute;
+    top: 6%;
+    left: 60%;
+    z-index: 2;
+    width: min(46%, 640px);
+    margin: 0;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(46px, 6vw, 86px);
+    font-weight: 500;
+    line-height: 1.25;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: tituloEntrada 1.15s cubic-bezier(.2,.8,.2,1) 0.1s forwards;
+}
 
-        itens.forEach(function (item) {
-            item.classList.remove('ativo');
-        });
+.menu {
+    position: absolute;
+    top: 53.5%;
+    left: 58%;
+    z-index: 2;
+    width: min(470px, 46vw);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    opacity: 0;
+    animation: menuEntrada 1.05s cubic-bezier(.2,.8,.2,1) 0.45s forwards;
+}
 
-        itens[indice].classList.add('ativo');
-    }
+.item {
+    position: relative;
+    width: 100%;
+    color: #fff;
+    transition: transform 0.18s ease;
+}
 
-    itens.forEach(function (item, indice) {
-        item.addEventListener('mouseenter', function () {
-            selecionar(indice);
-        });
-    });
+.item::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 8%;
+    bottom: 8%;
+    left: 0;
+    width: 0;
+    background: #9c27f3;
+    transition: width 0.24s ease;
+}
 
-    document.addEventListener('keydown', function (evento) {
-        if (evento.key === 'ArrowDown') {
-            evento.preventDefault();
-            selecionado++;
+.item.ativo::before {
+    width: 100%;
+}
 
-            if (selecionado >= itens.length) {
-                selecionado = 0;
-            }
+.item.ativo {
+    transform: translateX(0);
+}
 
-            selecionar(selecionado);
-            links[selecionado].focus();
-        }
+.item-link {
+    display: block;
+    width: 100%;
+    padding: 0.06em 0.65em;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    text-decoration: none;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(34px, 4.4vw, 66px);
+    line-height: 1.23;
+    cursor: pointer;
+}
 
-        if (evento.key === 'ArrowUp') {
-            evento.preventDefault();
-            selecionado--;
-
-            if (selecionado < 0) {
-                selecionado = itens.length - 1;
-            }
-
-            selecionar(selecionado);
-            links[selecionado].focus();
-        }
-    });
-
-    document.getElementById('sair').addEventListener('click', function () {
-        aviso.textContent = 'Para sair, feche esta aba.';
-    });
+.item-link:focus-visible {
+    outline: none;
 }
 
 /* Salvamento */
 
-function iniciarSalvamento() {
-    const slots = document.getElementById('slots');
-    const aviso = document.getElementById('aviso');
-    let saves = pegarJSON(CHAVE_SAVES, [null, null, null]);
+.titulo-salvamento {
+    position: absolute;
+    top: 3%;
+    left: 26.5%;
+    z-index: 2;
+    margin: 0;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(30px, 4.7vw, 66px);
+    font-weight: 500;
+    opacity: 0;
+    animation: aparece 0.8s ease forwards;
+}
 
-    function desenharSlots() {
-        slots.innerHTML = '';
+.slots {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
 
-        saves.forEach(function (save, indice) {
-            const slot = document.createElement('li');
-            slot.className = 'slot slot-' + (indice + 1);
+.slot {
+    position: absolute;
+    top: 13.6%;
+    width: 37.8%;
+    height: 72.7%;
+    z-index: 2;
+    container-type: inline-size;
+    color: #fff;
+    font-family: 'Pixelify Sans', sans-serif;
+    opacity: 0;
+    animation: cresce 0.65s ease forwards;
+}
 
-            const moldura = document.createElement('img');
-            moldura.className = 'slot-moldura';
-            moldura.src = 'imagens/moldura-slot.png';
-            moldura.alt = '';
-            slot.appendChild(moldura);
+.slot-1 { left: -2%; animation-delay: 0.18s; }
+.slot-2 { left: 31.1%; animation-delay: 0.34s; }
+.slot-3 { left: 64.1%; animation-delay: 0.5s; }
 
-            const abrir = document.createElement('button');
-            abrir.className = 'slot-acao';
-            abrir.type = 'button';
-            abrir.setAttribute('aria-label', 'Abrir jogo ' + (indice + 1));
-            slot.appendChild(abrir);
+.slot-moldura {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
 
-            const numero = document.createElement('span');
-            numero.className = 'slot-numero';
-            numero.textContent = (indice + 1) + '.';
-            slot.appendChild(numero);
+.slot-acao {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
 
-            if (save === null) {
-                const novo = document.createElement('p');
-                novo.className = 'slot-novo-jogo';
-                novo.textContent = 'New game';
-                slot.appendChild(novo);
-            } else {
-                const tempo = document.createElement('p');
-                tempo.className = 'slot-tempo';
-                tempo.textContent = formatarTempo(save.segundos);
-                slot.appendChild(tempo);
+.slot-acao:hover,
+.slot-acao:focus-visible {
+    background: rgba(156, 39, 243, 0.1);
+}
 
-                const capitulo = document.createElement('p');
-                capitulo.className = 'slot-capitulo';
-                capitulo.innerHTML = 'Capítulo atual<br><strong>' + save.capitulo + '</strong>';
-                slot.appendChild(capitulo);
+.slot-numero {
+    position: absolute;
+    top: 76%;
+    left: 12.5%;
+    font-size: max(24px, 14.8cqw);
+    pointer-events: none;
+}
 
-                const reiniciar = document.createElement('button');
-                reiniciar.className = 'icone-acao icone-reiniciar';
-                reiniciar.type = 'button';
-                reiniciar.innerHTML = '<img src="imagens/icone-reiniciar.png" alt="Reiniciar jogo">';
-                slot.appendChild(reiniciar);
+.slot-tempo {
+    position: absolute;
+    top: 7.7%;
+    left: 12.5%;
+    margin: 0;
+    font-size: max(14px, 5.5cqw);
+    pointer-events: none;
+}
 
-                const apagar = document.createElement('button');
-                apagar.className = 'icone-acao icone-lixeira';
-                apagar.type = 'button';
-                apagar.innerHTML = '<img src="imagens/icone-lixeira.png" alt="Apagar jogo">';
-                slot.appendChild(apagar);
+.slot-capitulo {
+    position: absolute;
+    top: 76.5%;
+    left: 46.8%;
+    width: 46.8%;
+    margin: 0;
+    font-size: max(14px, 5.5cqw);
+    line-height: 1.15;
+    pointer-events: none;
+}
 
-                reiniciar.addEventListener('click', function (evento) {
-                    evento.stopPropagation();
+.slot-novo-jogo {
+    position: absolute;
+    top: 41.2%;
+    left: 3.7%;
+    width: 92.6%;
+    margin: 0;
+    text-align: center;
+    font-size: max(20px, 8.7cqw);
+    pointer-events: none;
+}
 
-                    if (confirm('Reiniciar este jogo?')) {
-                        saves[indice] = { segundos: 0, capitulo: 1 };
-                        salvarJSON(CHAVE_SAVES, saves);
-                        desenharSlots();
-                        aviso.textContent = 'Jogo reiniciado.';
-                    }
-                });
+.icone-acao {
+    position: absolute;
+    z-index: 5;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
 
-                apagar.addEventListener('click', function (evento) {
-                    evento.stopPropagation();
+.icone-acao:hover {
+    transform: scale(1.12);
+}
 
-                    if (confirm('Apagar este jogo?')) {
-                        saves[indice] = null;
-                        salvarJSON(CHAVE_SAVES, saves);
-                        desenharSlots();
-                        aviso.textContent = 'Jogo apagado.';
-                    }
-                });
-            }
+.icone-acao img {
+    display: block;
+    width: auto;
+    height: 100%;
+}
 
-            abrir.addEventListener('click', function () {
-                if (saves[indice] === null) {
-                    saves[indice] = { segundos: 0, capitulo: 1 };
-                    salvarJSON(CHAVE_SAVES, saves);
-                }
+.icone-reiniciar { top: 100.3%; left: 26.7%; height: max(22px, 10.7cqw); }
+.icone-lixeira { top: 97.8%; left: 73.5%; height: max(36px, 19.2cqw); }
 
-                localStorage.setItem(CHAVE_SLOT, indice);
-                window.location.href = 'jogo-rodando.html';
-            });
+.voltar-inicio {
+    position: absolute;
+    right: 4%;
+    bottom: 6%;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 0.45em;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: clamp(26px, 3.8vw, 52px);
+    opacity: 0;
+    animation: apareceBaixo 0.6s ease 0.8s forwards;
+}
 
-            slots.appendChild(slot);
-        });
-    }
-
-    desenharSlots();
+.seta-voltar {
+    color: #9c27f3;
 }
 
 /* Jogo */
 
-function iniciarJogo() {
-    const pausa = document.getElementById('pausa');
-    const continuar = document.getElementById('continuar');
-    const salvarJogo = document.getElementById('salvar-jogo');
-    const aviso = document.getElementById('aviso');
-    const tempoJogo = document.getElementById('tempo-jogo');
+.stage-jogo-rodando {
+    background: #7d6484 url('imagens/Casa.png') center / cover no-repeat;
+}
 
-    let saves = pegarJSON(CHAVE_SAVES, [null, null, null]);
-    let indice = Number(localStorage.getItem(CHAVE_SLOT));
+.stage-jogo-rodando::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(122, 88, 130, 0.58);
+}
 
-    if (!Number.isInteger(indice) || !saves[indice]) {
-        indice = 0;
-        saves[0] = { segundos: 0, capitulo: 1 };
-    }
+.texto-jogo-rodando {
+    position: absolute;
+    top: 28%;
+    left: 27%;
+    z-index: 2;
+    width: 46%;
+    margin: 0;
+    text-align: center;
+    font-family: 'Goldman', sans-serif;
+    line-height: 1.35;
+    opacity: 0;
+    animation: aparece 0.8s ease forwards;
+}
 
-    function salvarProgresso() {
-        salvarJSON(CHAVE_SAVES, saves);
-    }
+.texto-jogo-rodando strong {
+    font-size: clamp(34px, 4.4vw, 60px);
+}
 
-    function atualizarTempo() {
-        tempoJogo.textContent = formatarTempo(saves[indice].segundos);
-    }
+.texto-jogo-rodando span {
+    font-size: clamp(20px, 2.5vw, 34px);
+}
 
-    function fecharPausa() {
-        pausa.classList.add('escondido');
-        aviso.textContent = '';
-    }
+.texto-jogo-rodando small {
+    font-size: clamp(18px, 2vw, 28px);
+}
 
-    setInterval(function () {
-        if (pausa.classList.contains('escondido')) {
-            saves[indice].segundos++;
-            atualizarTempo();
-        }
-    }, 1000);
+.pausa {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.72);
+    animation: aparece 0.18s ease;
+}
 
-    document.addEventListener('keydown', function (evento) {
-        if (evento.key === 'Escape') {
-            evento.preventDefault();
-            aviso.textContent = '';
-            pausa.classList.toggle('escondido');
-        }
+.pausa-caixa {
+    width: min(440px, 86vw);
+    padding: 28px;
+    border: 2px solid #9c27f3;
+    border-radius: 10px;
+    background: #171218;
+    text-align: center;
+    animation: cresce 0.22s ease;
+}
 
-        if ((evento.key === 'Tab' || evento.key.toLowerCase() === 'g') && pausa.classList.contains('escondido')) {
-            evento.preventDefault();
-            salvarProgresso();
-            window.location.href = 'inventario.html';
-        }
-    });
+.pausa-caixa h2 {
+    margin: 0 0 18px;
+    font-family: 'Pixelify Sans', sans-serif;
+    font-size: 46px;
+}
 
-    continuar.addEventListener('click', fecharPausa);
+.pausa-caixa button,
+.pausa-caixa a {
+    display: block;
+    width: 100%;
+    margin: 6px 0;
+    padding: 8px 10px;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    text-decoration: none;
+    font-size: 28px;
+    cursor: pointer;
+}
 
-    salvarJogo.addEventListener('click', function () {
-        salvarProgresso();
-        fecharPausa();
-        aviso.textContent = 'Jogo salvo.';
-    });
-
-    window.addEventListener('beforeunload', salvarProgresso);
-    window.addEventListener('pageshow', fecharPausa);
-    atualizarTempo();
+.pausa-caixa button:hover,
+.pausa-caixa a:hover {
+    background: #9c27f3;
 }
 
 /* Opções */
 
-function iniciarOpcoes() {
-    const abaControles = document.getElementById('aba-controles');
-    const abaSistema = document.getElementById('aba-sistema');
-    const painelControles = document.getElementById('painel-controles');
-    const painelSistema = document.getElementById('painel-sistema');
-    const form = document.getElementById('form-opcoes');
-    const musica = document.getElementById('musica');
-    const efeitos = document.getElementById('efeitos');
-    const musicaVal = document.getElementById('musica-val');
-    const efeitosVal = document.getElementById('efeitos-val');
-    const telaCheia = document.getElementById('tela-cheia');
-    const cancelar = document.getElementById('cancelar');
-    const restaurar = document.getElementById('restaurar');
-    const aviso = document.getElementById('aviso');
+.stage-opcoes {
+    min-height: 100dvh;
+    padding: 0;
+    background: #151515;
+    font-family: 'Pixelify Sans', sans-serif;
+}
 
-    let config = pegarJSON(CHAVE_CONFIG, configPadrao());
+.voltar-opcoes {
+    position: absolute;
+    top: 9.8%;
+    left: 1.4%;
+    z-index: 5;
+    width: 52px;
+    height: 68px;
+    background: #5b2b94;
+    clip-path: polygon(0 50%, 100% 0, 72% 50%, 100% 100%);
+    transition: transform 0.18s ease;
+}
 
-    function limparAviso() {
-        aviso.textContent = '';
-    }
+.voltar-opcoes:hover {
+    transform: translateX(-5px);
+}
 
-    function desenhar() {
-        musica.value = config.musica;
-        efeitos.value = config.efeitos;
-        musicaVal.textContent = config.musica + '%';
-        efeitosVal.textContent = config.efeitos + '%';
-        telaCheia.textContent = config.telaCheia ? 'ON' : 'OFF';
-    }
+.painel-opcoes {
+    width: min(87.7vw, 1122px);
+    height: min(80.4vh, 669px);
+    margin: 9.7vh auto 0;
+    padding: min(4.6vh, 38px) min(4.2vw, 54px) min(3vh, 25px);
+    background: rgba(217, 217, 217, 0.06);
+    opacity: 0;
+    animation: cresce 0.55s ease forwards;
+}
 
-    function abrirControles() {
-        limparAviso();
-        abaControles.classList.add('aba-ativa');
-        abaSistema.classList.remove('aba-ativa');
-        painelControles.classList.remove('escondido');
-        painelSistema.classList.add('escondido');
-    }
+.abas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4.8%;
+    height: min(10.3vh, 86px);
+    margin-bottom: min(4.4vh, 37px);
+}
 
-    function abrirSistema() {
-        limparAviso();
-        abaSistema.classList.add('aba-ativa');
-        abaControles.classList.remove('aba-ativa');
-        painelSistema.classList.remove('escondido');
-        painelControles.classList.add('escondido');
-    }
+.aba {
+    border: 1px solid rgba(160, 32, 240, 0.65);
+    border-radius: 10px;
+    background: rgba(217, 217, 217, 0.08);
+    font-size: clamp(26px, 3.1vw, 43px);
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+}
 
-    abaControles.addEventListener('click', abrirControles);
-    abaSistema.addEventListener('click', abrirSistema);
+.aba:hover {
+    transform: translateY(-2px);
+}
 
-    musica.addEventListener('input', function () {
-        limparAviso();
-        musicaVal.textContent = musica.value + '%';
-    });
+.aba-ativa {
+    background: rgba(156, 39, 243, 0.45);
+}
 
-    efeitos.addEventListener('input', function () {
-        limparAviso();
-        efeitosVal.textContent = efeitos.value + '%';
-    });
+.caixa-opcoes {
+    height: min(58vh, 482px);
+    padding: min(3.7vh, 31px) min(1.5vw, 19px) min(2vh, 17px);
+    border: 1px solid rgba(160, 32, 240, 0.55);
+    background: rgba(217, 217, 217, 0.07);
+    overflow: hidden;
+}
 
-    telaCheia.addEventListener('click', function () {
-        limparAviso();
-        config.telaCheia = !config.telaCheia;
-        telaCheia.textContent = config.telaCheia ? 'ON' : 'OFF';
-    });
+.botoes-opcoes {
+    display: flex;
+    gap: 3.4%;
+}
 
-    form.addEventListener('submit', function (evento) {
-        evento.preventDefault();
+.botao-opcao {
+    width: 207px;
+    max-width: 29%;
+    min-height: 53px;
+    border: 1px solid rgba(160, 32, 240, 0.75);
+    border-radius: 10px;
+    background: rgba(217, 217, 217, 0.11);
+    font-size: clamp(15px, 1.7vw, 23px);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
 
-        config.musica = Number(musica.value);
-        config.efeitos = Number(efeitos.value);
-        salvarJSON(CHAVE_CONFIG, config);
-        aviso.textContent = 'Configurações salvas.';
-    });
+.botao-opcao:hover {
+    transform: translateY(-2px);
+}
 
-    cancelar.addEventListener('click', function () {
-        config = pegarJSON(CHAVE_CONFIG, configPadrao());
-        desenhar();
-        aviso.textContent = 'Alterações canceladas.';
-    });
+.botao-ativo {
+    background: rgba(156, 39, 243, 0.62);
+}
 
-    restaurar.addEventListener('click', function () {
-        config = configPadrao();
-        desenhar();
-        aviso.textContent = 'Valores padrão restaurados. Clique em SALVAR.';
-    });
+.aviso-form {
+    height: 1.5em;
+    margin: 0.35em 0 0.2em;
+    color: #e9d5ff;
+    font-size: 17px;
+}
 
-    desenhar();
+.tabela-controles {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0 0.38em;
+    font-size: clamp(15px, 1.55vw, 22px);
+}
+
+.tabela-controles th {
+    font-weight: 400;
+    text-align: left;
+}
+
+.tabela-controles thead th {
+    padding-bottom: 0.1em;
+    font-weight: 700;
+    text-align: center;
+    font-size: clamp(17px, 1.9vw, 27px);
+}
+
+.caixa-tecla {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 32px;
+    padding: 0 0.3em;
+    border: 1px solid rgba(160, 32, 240, 0.72);
+    border-radius: 10px;
+    background: rgba(217, 217, 217, 0.12);
+    white-space: nowrap;
+}
+
+.simbolo-circulo {
+    color: #f53838;
+    font-family: 'Gluten', sans-serif;
+}
+
+.simbolo-triangulo {
+    color: #3ef538;
+    font-family: 'Gluten', sans-serif;
+}
+
+.lista-sistema {
+    width: min(64%, 610px);
+    margin: 2.2vh auto 0;
+    padding: 0;
+    list-style: none;
+    font-size: clamp(18px, 2.05vw, 29px);
+}
+
+.lista-sistema li {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    align-items: center;
+    gap: 1em;
+    margin: 0.95em 0;
+}
+
+.pilula {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    min-height: 40px;
+    padding: 0 0.75em;
+    border: 1px solid rgba(160, 32, 240, 0.72);
+    border-radius: 10px;
+    background: rgba(217, 217, 217, 0.12);
+}
+
+.pilula input[type='range'] {
+    flex: 1;
+    min-width: 0;
+    accent-color: #9c27f3;
+}
+
+.pilula output {
+    min-width: 3em;
+    text-align: right;
+}
+
+.pilula button {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.valor-config {
+    justify-content: center;
+    font-size: 0.82em;
 }
 
 /* Inventário */
 
-function iniciarInventario() {
-    const abas = document.querySelectorAll('.aba-inventario');
-    const listaItens = document.getElementById('lista-itens');
-    const mensagem = document.getElementById('mensagem-inventario');
-    const usar = document.getElementById('usar-item');
-    const examinar = document.getElementById('examinar-item');
-    const descartar = document.getElementById('descartar-item');
-
-    const itensPadrao = [
-        { nome: 'Chá de Camomila', quantidade: 3, simbolo: '✿', descricao: 'Um chá morno que acalma o corpo e a mente. Restaura 20 de PV.', frase: '“Às vezes, tudo que a gente precisa é de um pouco de calma.”', consumivel: true },
-        { nome: 'Curativo', quantidade: 4, simbolo: '✚', descricao: 'Um curativo velho encontrado pelo caminho. Parece improvisado, mas ainda serve. Restaura 30 de PV.', frase: '“Melhor usar com cuidado.”', consumivel: true },
-        { nome: 'Chave Antiga', quantidade: 1, simbolo: '⚿', descricao: 'Uma chave antiga. Você ainda não sabe qual porta ela abre.', frase: '“A ferrugem cobre quase toda a chave.”', consumivel: false },
-        { nome: 'Pingente de Vidro', quantidade: 1, simbolo: '◇', descricao: 'Um pequeno pingente de vidro violeta. Parece importante.', frase: '“Ele parece guardar uma lembrança.”', consumivel: false }
-    ];
-
-    const missoes = [
-        {
-            titulo: 'A Florista Silenciosa',
-            resumo: 'Encontre um jeito de fazê-la sorrir.',
-            descricao: 'Ela mora sozinha na floricultura no fim da rua e quase não fala com ninguém.',
-            local: 'Floricultura Violeta',
-            objetivos: ['Descobrir por que ela evita a estufa', 'Conversar com o jardineiro antigo', 'Encontrar o antigo caderno de receitas'],
-            pista: 'Ela sempre olha para a velha estufa quando pensa que ninguém está vendo.'
-        },
-        {
-            titulo: 'O Menino da Estação',
-            resumo: 'Descubra por que ele nunca embarca.',
-            descricao: 'Um garoto aparece todos os dias na estação, mas nunca entra no trem.',
-            local: 'Estação',
-            objetivos: ['Conversar com o menino', 'Perguntar ao bilheteiro', 'Encontrar a passagem antiga'],
-            pista: 'Ele aperta uma passagem amassada sempre que o trem chega.'
-        }
-    ];
-
-    const diario = [
-        { data: '12 de Agosto', titulo: 'Hoje conheci a florista', texto: 'Hoje conheci uma florista. Ela fala tão baixinho...', pista: 'Ela sempre olha para a velha estufa. Por quê?' },
-        { data: '9 de Agosto', titulo: 'Sobre a biblioteca', texto: 'Passei mais tempo do que esperava na biblioteca.', pista: 'Alguns livros parecem ter sido movidos recentemente.' },
-        { data: '23 de Julho', titulo: 'Um sonho estranho', texto: 'Tive o mesmo sonho outra vez. Aquele corredor parecia maior.', pista: 'No fim dele havia uma porta violeta.' },
-        { data: '14 de Julho', titulo: 'O menino da estação', texto: 'O menino estava na plataforma de novo.', pista: 'Ele nunca embarca.' },
-        { data: '2 de Julho', titulo: 'Sobre meu poder', texto: 'Ainda não entendo direito o que acontece comigo.', pista: 'Talvez minhas emoções mudem mais do que eu percebo.' },
-        { data: '24 de Junho', titulo: 'Chá de Camomila', texto: 'O chá ajudou. Pelo menos por alguns minutos.', pista: 'Talvez eu devesse guardar outro.' }
-    ];
-
-    let itens = pegarJSON(CHAVE_ITENS, itensPadrao);
-    let itemAtual = 0;
-
-    function limparMensagem() {
-        mensagem.textContent = '';
-    }
-
-    function abrirPainel(nome) {
-        document.getElementById('painel-itens').classList.add('escondido');
-        document.getElementById('painel-missoes').classList.add('escondido');
-        document.getElementById('painel-diario').classList.add('escondido');
-        document.getElementById('painel-' + nome).classList.remove('escondido');
-        limparMensagem();
-
-        abas.forEach(function (aba) {
-            aba.classList.remove('ativa');
-
-            if (aba.dataset.painel === nome) {
-                aba.classList.add('ativa');
-            }
-        });
-    }
-
-    abas.forEach(function (aba) {
-        aba.addEventListener('click', function () {
-            abrirPainel(aba.dataset.painel);
-        });
-    });
-
-    function mostrarSemItens() {
-        document.getElementById('item-ilustracao').textContent = '';
-        document.getElementById('item-nome').textContent = 'Inventário vazio';
-        document.getElementById('item-descricao').textContent = 'Você não está carregando nenhum item.';
-        document.getElementById('item-frase').textContent = '';
-        usar.disabled = true;
-        examinar.disabled = true;
-        descartar.disabled = true;
-    }
-
-    function mostrarItem(indice) {
-        itemAtual = indice;
-        limparMensagem();
-
-        const item = itens[indice];
-        document.getElementById('item-ilustracao').textContent = item.simbolo;
-        document.getElementById('item-nome').textContent = item.nome;
-        document.getElementById('item-descricao').textContent = item.descricao;
-        document.getElementById('item-frase').textContent = item.frase;
-
-        const botoes = listaItens.querySelectorAll('.linha-item');
-        botoes.forEach(function (botao) {
-            botao.classList.remove('selecionado');
-        });
-
-        if (botoes[indice]) {
-            botoes[indice].classList.add('selecionado');
-        }
-    }
-
-    function desenharItens() {
-        listaItens.innerHTML = '';
-        usar.disabled = false;
-        examinar.disabled = false;
-        descartar.disabled = false;
-
-        itens.forEach(function (item, indice) {
-            const botao = document.createElement('button');
-            botao.type = 'button';
-            botao.className = 'linha-item';
-            botao.innerHTML = '<span>' + item.nome + '</span><strong>x' + item.quantidade + '</strong>';
-            botao.addEventListener('click', function () {
-                mostrarItem(indice);
-            });
-            listaItens.appendChild(botao);
-        });
-
-        if (itens.length === 0) {
-            mostrarSemItens();
-            return;
-        }
-
-        if (itemAtual >= itens.length) {
-            itemAtual = 0;
-        }
-
-        mostrarItem(itemAtual);
-    }
-
-    function desenharMissoes() {
-        const lista = document.getElementById('lista-missoes');
-        lista.innerHTML = '';
-
-        missoes.forEach(function (missao, indice) {
-            const botao = document.createElement('button');
-            botao.type = 'button';
-            botao.className = 'cartao-missao';
-            botao.innerHTML = '<strong>' + missao.titulo + '</strong><span>' + missao.resumo + '</span>';
-            botao.addEventListener('click', function () {
-                mostrarMissao(indice);
-            });
-            lista.appendChild(botao);
-        });
-
-        mostrarMissao(0);
-    }
-
-    function mostrarMissao(indice) {
-        const missao = missoes[indice];
-        const objetivos = document.getElementById('missao-objetivos');
-        const botoes = document.querySelectorAll('.cartao-missao');
-
-        botoes.forEach(function (botao) {
-            botao.classList.remove('selecionado');
-        });
-
-        if (botoes[indice]) {
-            botoes[indice].classList.add('selecionado');
-        }
-
-        document.getElementById('missao-titulo').textContent = missao.titulo;
-        document.getElementById('missao-descricao').textContent = missao.descricao;
-        document.getElementById('missao-local').textContent = missao.local;
-        document.getElementById('missao-pista').textContent = missao.pista;
-
-        objetivos.innerHTML = '';
-        missao.objetivos.forEach(function (objetivo) {
-            const li = document.createElement('li');
-            li.textContent = objetivo;
-            objetivos.appendChild(li);
-        });
-    }
-
-    function desenharDiario() {
-        const lista = document.getElementById('lista-diario');
-        lista.innerHTML = '';
-
-        diario.forEach(function (entrada, indice) {
-            const botao = document.createElement('button');
-            botao.type = 'button';
-            botao.className = 'entrada-diario';
-            botao.innerHTML = '<strong>' + entrada.data + '</strong><span>' + entrada.titulo + '</span>';
-            botao.addEventListener('click', function () {
-                mostrarDiario(indice);
-            });
-            lista.appendChild(botao);
-        });
-
-        mostrarDiario(0);
-    }
-
-    function mostrarDiario(indice) {
-        const entrada = diario[indice];
-        const botoes = document.querySelectorAll('.entrada-diario');
-
-        botoes.forEach(function (botao) {
-            botao.classList.remove('selecionado');
-        });
-
-        if (botoes[indice]) {
-            botoes[indice].classList.add('selecionado');
-        }
-
-        document.getElementById('diario-data').textContent = entrada.data;
-        document.getElementById('diario-texto').textContent = entrada.texto;
-        document.getElementById('diario-pista').textContent = entrada.pista;
-    }
-
-    usar.addEventListener('click', function () {
-        if (itens.length === 0) {
-            return;
-        }
-
-        if (!itens[itemAtual].consumivel) {
-            mensagem.textContent = 'Este item não pode ser usado agora.';
-            return;
-        }
-
-        const nome = itens[itemAtual].nome;
-        itens[itemAtual].quantidade--;
-        mensagem.textContent = nome + ' usado.';
-
-        if (itens[itemAtual].quantidade <= 0) {
-            itens.splice(itemAtual, 1);
-            itemAtual = 0;
-        }
-
-        salvarJSON(CHAVE_ITENS, itens);
-        desenharItens();
-        mensagem.textContent = nome + ' usado.';
-    });
-
-    examinar.addEventListener('click', function () {
-        if (itens.length > 0) {
-            mensagem.textContent = itens[itemAtual].frase;
-        }
-    });
-
-    descartar.addEventListener('click', function () {
-        if (itens.length === 0) {
-            return;
-        }
-
-        const nome = itens[itemAtual].nome;
-
-        if (confirm('Descartar uma unidade de ' + nome + '?')) {
-            itens[itemAtual].quantidade--;
-
-            if (itens[itemAtual].quantidade <= 0) {
-                itens.splice(itemAtual, 1);
-                itemAtual = 0;
-            }
-
-            salvarJSON(CHAVE_ITENS, itens);
-            desenharItens();
-            mensagem.textContent = nome + ' descartado.';
-        }
-    });
-
-    desenharItens();
-    desenharMissoes();
-    desenharDiario();
+.inventario-tela {
+    --cabecalho-inventario: clamp(92px, 15.5vh, 129px);
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+    background: #171417;
+    color: #fff;
+    font-family: 'Pixelify Sans', sans-serif;
 }
 
-/* Início */
-
-if (document.body.id === 'menu') {
-    iniciarMenu();
+.inventario-fundo {
+    position: absolute;
+    inset: 0;
+    background: url('imagens/Casa.png') center / cover no-repeat;
+    opacity: 0.2;
+    filter: saturate(0.6) brightness(0.55);
 }
 
-if (document.body.id === 'salvamento') {
-    iniciarSalvamento();
+.inventario-abas {
+    position: relative;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: 23.2% 27.4% 25.9% 23.5%;
+    height: var(--cabecalho-inventario);
+    background: #201b22;
+    opacity: 0;
+    animation: aparece 0.45s ease forwards;
 }
 
-if (document.body.id === 'jogo') {
-    iniciarJogo();
+.aba-inventario,
+.fechar-inventario {
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-right: 1px solid #4a424d;
+    background: #262027;
+    color: #fff;
+    text-decoration: none;
+    font-size: clamp(27px, 3vw, 43px);
+    cursor: pointer;
+    transition: background 0.18s ease;
 }
 
-if (document.body.id === 'opcoes') {
-    iniciarOpcoes();
+.aba-inventario:hover,
+.aba-inventario.ativa {
+    background: #3a303d;
 }
 
-if (document.body.id === 'inventario') {
-    iniciarInventario();
+.fechar-inventario {
+    font-size: clamp(48px, 6vw, 82px);
+}
+
+.fechar-inventario:hover {
+    background: #332934;
+}
+
+.painel-inventario {
+    position: relative;
+    z-index: 3;
+    height: calc(100dvh - var(--cabecalho-inventario));
+    min-height: 0;
+    animation: cresce 0.28s ease;
+}
+
+/* Itens */
+
+.painel-itens {
+    display: grid;
+    grid-template-columns: 56.8% 43.2%;
+}
+
+.lista-coluna {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto 15.7% 27.7%;
+    min-height: 0;
+    border-right: 1px solid #4a424d;
+    background: rgba(24, 20, 25, 0.94);
+}
+
+.lista-itens {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 3.2vh 3.4vw 0;
+}
+
+.linha-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1em;
+    width: 100%;
+    padding: 0.32em 0.9em;
+    border: 0;
+    border-bottom: 1px solid #5a4e5e;
+    background: transparent;
+    color: #fff;
+    text-align: left;
+    font-size: clamp(22px, 2.4vw, 38px);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.linha-item span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.linha-item:hover,
+.linha-item.selecionado {
+    background: rgba(156, 39, 243, 0.22);
+    transform: translateX(3px);
+}
+
+.mensagem-inventario {
+    min-height: 1.55em;
+    margin: 0;
+    padding: 0.25em 3.5vw;
+    color: #e9d5ff;
+    font-size: clamp(15px, 1.45vw, 21px);
+}
+
+.acoes-inventario {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid #4a424d;
+    border-bottom: 1px solid #4a424d;
+    background: #231d24;
+}
+
+.acoes-inventario button {
+    border: 0;
+    border-right: 1px solid #4a424d;
+    background: transparent;
+    color: #fff;
+    font-size: clamp(20px, 2.2vw, 34px);
+    cursor: pointer;
+}
+
+.acoes-inventario button:last-child {
+    border-right: 0;
+}
+
+.acoes-inventario button:hover {
+    background: #9c27f3;
+}
+
+.acoes-inventario button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.texto-inferior {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 1.3vh 12% 1.3vh 12%;
+    font-size: clamp(20px, 2.25vw, 34px);
+    line-height: 1.12;
+}
+
+.detalhe-coluna {
+    display: grid;
+    grid-template-rows: 35% 7% 16% 10.5% 31.5%;
+    min-height: 0;
+    background: rgba(29, 24, 30, 0.96);
+    overflow: hidden;
+}
+
+.item-ilustracao {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+    color: #c684ff;
+    font-size: clamp(74px, 10vw, 145px);
+}
+
+.detalhe-coluna h2 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0 2.4vw;
+    font-size: clamp(22px, 2.45vw, 37px);
+}
+
+.detalhe-coluna > p {
+    margin: 0;
+    padding: 0.5em 2.4vw;
+    font-size: clamp(16px, 1.65vw, 25px);
+    overflow: auto;
+}
+
+.frase-item {
+    border-top: 1px solid #5a4e5e;
+}
+
+.status-box {
+    min-height: 0;
+    padding: 0.7vh 4.8vw 0.8vh;
+    border-top: 1px solid #4a424d;
+    background: #211c22;
+}
+
+.status-box h3 {
+    margin: 0 0 0.25em;
+    text-align: center;
+    font-size: clamp(19px, 2.1vw, 32px);
+}
+
+.status-box p {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    margin: 0.12em 0;
+    font-size: clamp(13px, 1.45vw, 22px);
+}
+
+.status-box span {
+    letter-spacing: 0.08em;
+}
+
+/* Missões */
+
+.painel-missoes {
+    display: grid;
+    grid-template-rows: 84.8% 15.2%;
+    background: rgba(24, 20, 25, 0.96);
+}
+
+.missoes-corpo {
+    display: grid;
+    grid-template-columns: 38.3% 61.7%;
+    min-height: 0;
+}
+
+.missoes-lista {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 4.8vh 1.3vw 2vh;
+    border-right: 1px solid #4a424d;
+}
+
+.cartao-missao {
+    display: grid;
+    gap: 0.35em;
+    width: 100%;
+    min-height: 125px;
+    margin-bottom: 2.2vh;
+    padding: 0.75em 1em 0.75em clamp(82px, 9.2vw, 118px);
+    border: 1px solid #5a4e5e;
+    background: #272129;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.cartao-missao:hover,
+.cartao-missao.selecionado {
+    border-color: #9c27f3;
+    background: rgba(156, 39, 243, 0.16);
+    transform: translateX(3px);
+}
+
+.cartao-missao strong {
+    font-size: clamp(18px, 2vw, 29px);
+}
+
+.cartao-missao span {
+    font-size: clamp(14px, 1.4vw, 21px);
+}
+
+.missao-detalhe {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(175px, 31%);
+    gap: 2.2vw;
+    min-height: 0;
+    padding: 3.4vh 2.6vw 2.6vh;
+    background: rgba(29, 24, 30, 0.96);
+    overflow: hidden;
+}
+
+.missao-texto {
+    min-width: 0;
+    overflow-y: auto;
+}
+
+.missao-detalhe h2 {
+    margin: 0 0 0.55em;
+    font-size: clamp(25px, 2.7vw, 41px);
+}
+
+.missao-detalhe p,
+.missao-detalhe li {
+    font-size: clamp(15px, 1.45vw, 22px);
+    line-height: 1.35;
+}
+
+.missao-local {
+    margin-top: 1.2em;
+}
+
+.missao-detalhe h3 {
+    margin: 1.25em 0 0.45em;
+    text-align: left;
+    font-size: clamp(20px, 1.95vw, 30px);
+}
+
+.missao-detalhe ul {
+    margin: 0;
+    padding-left: 1.25em;
+    line-height: 1.45;
+}
+
+.ultima-pista {
+    align-self: center;
+    min-height: 165px;
+    padding: 1em;
+    border: 1px solid #5a4e5e;
+    background: #241e25;
+}
+
+.ultima-pista strong {
+    font-size: clamp(17px, 1.6vw, 24px);
+}
+
+.ultima-pista p {
+    margin-bottom: 0;
+    font-size: clamp(13px, 1.2vw, 18px);
+}
+
+.missoes-rodape {
+    display: grid;
+    grid-template-columns: 55.7% 44.3%;
+    border-top: 1px solid #4a424d;
+    background: #211c22;
+}
+
+.missoes-rodape > p {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0.8em 4vw;
+    font-size: clamp(14px, 1.45vw, 22px);
+}
+
+.acoes-missao {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 0.7fr;
+}
+
+.acoes-missao span {
+    display: grid;
+    place-items: center;
+    border-left: 1px solid #4a424d;
+    color: #fff;
+    font-size: clamp(13px, 1.25vw, 19px);
+    text-align: center;
+}
+
+
+/* Diário */
+
+.painel-diario {
+    display: grid;
+    grid-template-rows: 84.8% 15.2%;
+    background: rgba(24, 20, 25, 0.96);
+}
+
+.diario-corpo {
+    display: grid;
+    grid-template-columns: 20.6% 79.4%;
+    min-height: 0;
+}
+
+.diario-lista {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1vh 0.9vw 1.4vh;
+    border-right: 1px solid #4a424d;
+    background: #221d23;
+}
+
+.diario-lista h2 {
+    margin: 0.45em 0 0.65em;
+    text-align: center;
+    font-size: clamp(17px, 1.7vw, 26px);
+}
+
+.entrada-diario {
+    display: grid;
+    gap: 0.15em;
+    width: 100%;
+    min-height: 68px;
+    padding: 0.55em 0.7em;
+    border: 1px solid #4d444f;
+    background: #272129;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.entrada-diario:hover,
+.entrada-diario.selecionado {
+    border-color: #9c27f3;
+    background: rgba(156, 39, 243, 0.18);
+}
+
+.entrada-diario strong {
+    font-size: clamp(13px, 1.3vw, 19px);
+}
+
+.entrada-diario span {
+    font-size: clamp(12px, 1.1vw, 17px);
+}
+
+.pagina-diario {
+    min-height: 0;
+    padding: 9vh 8vw 5vh;
+    background: #1d191e;
+    text-align: center;
+    overflow-y: auto;
+}
+
+.pagina-diario h2 {
+    margin-top: 0;
+    font-size: clamp(20px, 2.1vw, 32px);
+}
+
+.pagina-diario p {
+    margin: 1.6em auto;
+    max-width: 540px;
+    font-size: clamp(16px, 1.6vw, 24px);
+    line-height: 1.4;
+}
+
+.diario-pista {
+    padding-top: 1.5em;
+    border-top: 1px solid #5a4e5e;
+}
+
+.diario-rodape {
+    display: grid;
+    grid-template-columns: 29.9% 70.1%;
+    border-top: 1px solid #4a424d;
+    background: #211c22;
+}
+
+.diario-rodape > p {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0.7em 2.7vw;
+    border-right: 1px solid #4a424d;
+    font-size: clamp(12px, 1.2vw, 18px);
+}
+
+.adesivos-diario {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.2vw;
+    padding: 0.6em 1.5vw;
+}
+
+.adesivos-diario span {
+    font-size: clamp(13px, 1.3vw, 20px);
+}
+
+.adesivos-diario div {
+    font-size: clamp(20px, 2.2vw, 32px);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+}
+
+/* Responsividade */
+
+@media (max-width: 760px) {
+    .titulomenu {
+        top: 7%;
+        width: 88%;
+        font-size: clamp(42px, 13vw, 68px);
+    }
+
+    .menu {
+        top: 49%;
+        width: 86vw;
+    }
+
+    .item-link {
+        font-size: clamp(34px, 10vw, 54px);
+    }
+
+    .texto-jogo-rodando {
+        top: 32%;
+        left: 7%;
+        width: 86%;
+    }
+
+    @keyframes tituloEntrada {
+        0% { left: 20%; opacity: 0; transform: translateX(40px); }
+        100% { left: 5%; opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes menuEntrada {
+        0% { left: 18%; opacity: 0; transform: translateX(40px); }
+        100% { left: 0; opacity: 1; transform: translateX(0); }
+    }
+
+    .stage-salvamento {
+        min-height: auto;
+        padding: 4vh 0 12vh;
+        overflow: visible;
+    }
+
+    .titulo-salvamento {
+        position: relative;
+        top: auto;
+        left: auto;
+        text-align: center;
+    }
+
+    .slots {
+        display: grid;
+        gap: 5vh;
+        padding-top: 3vh;
+    }
+
+    .slot {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: min(88vw, 470px);
+        height: auto;
+        aspect-ratio: 484 / 605;
+        margin: 0 auto;
+    }
+
+    .voltar-inicio {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        justify-content: center;
+        margin-top: 7vh;
+    }
+
+    .stage-opcoes {
+        padding: 2vh 0 4vh;
+        overflow-y: auto;
+    }
+
+    .voltar-opcoes {
+        top: 2.5vh;
+        width: 38px;
+        height: 48px;
+    }
+
+    .painel-opcoes {
+        width: 94vw;
+        height: auto;
+        min-height: 88vh;
+        margin: 4vh auto 0;
+        padding: 2vh 2vw;
+    }
+
+    .abas {
+        height: 62px;
+        gap: 2vw;
+        margin-bottom: 2vh;
+    }
+
+    .aba {
+        font-size: 24px;
+    }
+
+    .caixa-opcoes {
+        height: auto;
+        min-height: 68vh;
+        overflow-x: auto;
+    }
+
+    .tabela-controles {
+        min-width: 640px;
+    }
+
+    .lista-sistema {
+        width: 100%;
+    }
+
+    .lista-sistema li {
+        grid-template-columns: 1fr;
+    }
+
+    .inventario-tela {
+        --cabecalho-inventario: 76px;
+        height: 100dvh;
+        overflow-y: auto;
+    }
+
+    .inventario-abas {
+        grid-template-columns: repeat(4, 1fr);
+        position: sticky;
+        top: 0;
+    }
+
+    .aba-inventario,
+    .fechar-inventario {
+        font-size: clamp(19px, 5.4vw, 27px);
+    }
+
+    .painel-inventario {
+        height: auto;
+        min-height: calc(100dvh - var(--cabecalho-inventario));
+    }
+
+    .painel-itens,
+    .missoes-corpo,
+    .diario-corpo {
+        grid-template-columns: 1fr;
+    }
+
+    .lista-coluna {
+        grid-template-rows: auto auto 86px auto;
+        min-height: 620px;
+    }
+
+    .detalhe-coluna {
+        grid-template-rows: 210px auto auto auto auto;
+    }
+
+    .item-ilustracao {
+        font-size: 100px;
+    }
+
+    .status-box {
+        padding: 2vh 8vw;
+    }
+
+    .painel-missoes,
+    .painel-diario {
+        grid-template-rows: auto auto;
+    }
+
+    .missoes-lista,
+    .missao-detalhe,
+    .diario-lista,
+    .pagina-diario {
+        min-height: auto;
+        border-right: 0;
+    }
+
+    .missao-detalhe {
+        grid-template-columns: 1fr;
+    }
+
+    .ultima-pista {
+        min-height: auto;
+    }
+
+    .missoes-rodape,
+    .diario-rodape {
+        grid-template-columns: 1fr;
+    }
+
+    .acoes-missao {
+        min-height: 72px;
+        border-top: 1px solid #4a424d;
+    }
+
+    .diario-rodape > p {
+        border-right: 0;
+        border-bottom: 1px solid #4a424d;
+    }
+
+    .adesivos-diario {
+        min-height: 82px;
+    }
 }
