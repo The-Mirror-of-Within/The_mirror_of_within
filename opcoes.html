@@ -11,7 +11,7 @@
 </head>
 <body id="opcoes">
     <main class="stage stage-opcoes">
-        <a class="voltar-opcoes" href="index.html" aria-label="Voltar"></a>
+        <a class="voltar-opcoes" id="voltar-opcoes" href="index.html" aria-label="Voltar"></a>
 
         <div class="painel-opcoes">
             <div class="abas">
@@ -25,9 +25,15 @@
                     <button class="botao-opcao" type="button" id="cancelar">CANCELAR</button>
                     <button class="botao-opcao" type="button" id="restaurar">RESTAURAR</button>
                 </div>
-                <p class="aviso-form" id="aviso"></p>
+                <p class="aviso-form" id="aviso" role="status"></p>
+                <p class="instrucoes-teclas">Clique em uma tecla na tabela e pressione a nova tecla. Setas, Esc e Tab também funcionam.</p>
 
                 <div id="painel-controles">
+                    <div class="ajuda-controles-mobile" aria-label="Controles de toque">
+                        <p>No celular, os botões já ficam na tela durante o jogo.</p>
+                        <p><strong>Direcional</strong> para andar, <strong>PEGAR</strong> para interagir, <strong>MOCHILA</strong> para abrir o inventário e <strong>PAUSAR</strong> para pausar.</p>
+                        <p>Não é necessário configurar teclas no celular.</p>
+                    </div>
                     <table class="tabela-controles">
                         <thead>
                             <tr>
@@ -37,12 +43,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><th>Movimento (Frente)</th><td><div class="caixa-tecla">W</div></td><td><div class="caixa-tecla">D-Pad ↑</div></td></tr>
-                            <tr><th>Movimento (Trás)</th><td><div class="caixa-tecla">S</div></td><td><div class="caixa-tecla">D-Pad ↓</div></td></tr>
-                            <tr><th>Movimento (Esquerda)</th><td><div class="caixa-tecla">A</div></td><td><div class="caixa-tecla">D-Pad ←</div></td></tr>
-                            <tr><th>Movimento (Direita)</th><td><div class="caixa-tecla">D</div></td><td><div class="caixa-tecla">D-Pad →</div></td></tr>
-                            <tr><th>Interagir</th><td><div class="caixa-tecla">R</div></td><td><div class="caixa-tecla"><span class="simbolo-circulo">O</span></div></td></tr>
-                            <tr><th>Abrir Inventário</th><td><div class="caixa-tecla">G / TAB</div></td><td><div class="caixa-tecla"><span class="simbolo-triangulo">Δ</span></div></td></tr>
+                            <tr><th scope="row">Andar para cima</th><td><button type="button" class="caixa-tecla tecla-config" data-acao="cima" aria-label="Mudar tecla para andar para cima"></button></td><td><div class="caixa-tecla">D-Pad ↑</div></td></tr>
+                            <tr><th scope="row">Andar para baixo</th><td><button type="button" class="caixa-tecla tecla-config" data-acao="baixo" aria-label="Mudar tecla para andar para baixo"></button></td><td><div class="caixa-tecla">D-Pad ↓</div></td></tr>
+                            <tr><th scope="row">Andar para esquerda</th><td><button type="button" class="caixa-tecla tecla-config" data-acao="esquerda" aria-label="Mudar tecla para andar para esquerda"></button></td><td><div class="caixa-tecla">D-Pad ←</div></td></tr>
+                            <tr><th scope="row">Andar para direita</th><td><button type="button" class="caixa-tecla tecla-config" data-acao="direita" aria-label="Mudar tecla para andar para direita"></button></td><td><div class="caixa-tecla">D-Pad →</div></td></tr>
+                            <tr><th scope="row">Interagir</th><td><button type="button" class="caixa-tecla tecla-config" data-acao="interagir" aria-label="Mudar tecla para interagir"></button></td><td><div class="caixa-tecla">Botão PEGAR</div></td></tr>
+                            <tr><th scope="row">Abrir inventário</th><td><button type="button" class="caixa-tecla tecla-config" data-acao="inventario" aria-label="Mudar tecla para abrir inventário"></button></td><td><div class="caixa-tecla">Botão MOCHILA</div></td></tr>
                         </tbody>
                     </table>
                 </div>
