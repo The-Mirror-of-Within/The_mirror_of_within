@@ -1,79 +1,51 @@
-# The_Mirror_Within
-Repositório: https://github.com/The-Mirror-of-Within/The_mirror_of_within
 
-Aplicação publicada: https://the-mirror-of-within.github.io/The_mirror_of_within/
+# The Mirror Within
 
-Sobre o projeto
+**The Mirror Within** é um RPG narrativo em desenvolvimento, com foco na representatividade positiva e na construção da empatia por meio dos jogos digitais.
 
-The Mirror Within é um RPG narrativo em desenvolvimento, com foco na representatividade positiva e na construção da empatia por meio dos jogos digitais.
+A versão web apresenta um protótipo jogável, no qual o jogador pode explorar o quarto da protagonista, interagir com objetos, gerenciar seu inventário e acessar diferentes menus.
 
-A versão web apresenta um protótipo jogável no qual o jogador pode explorar o quarto da protagonista, interagir com objetos, gerenciar o inventário e acessar diferentes menus.
+## Funcionalidades
 
-Funcionalidades implementadas
+- Menu inicial e três espaços de salvamento.
+- Movimentação da protagonista pelo cenário.
+- Interação e coleta de objetos.
+- Inventário com itens, missões e diário.
+- Menu de pausa.
+- Salvamento do progresso do jogador.
+- Personalização dos controles de movimentação e interação.
+- Controles adaptados para computadores e dispositivos móveis.
 
-Menu inicial com três espaços de salvamento.
+## Checklist dos critérios técnicos
 
-Movimentação da protagonista pelo cenário.
+| Critério | Como o projeto atende |
+| --- | --- |
+| **1. Publicação da aplicação** | O projeto está publicado no **GitHub Pages**, podendo ser acessado por meio de um link público. A aplicação apresenta uma versão web jogável, com menus, cenário e funcionalidades implementadas em HTML, CSS e JavaScript. |
+| **2. Interatividade com JavaScript** | O jogo utiliza JavaScript para controlar a movimentação da protagonista, a interação com objetos, o inventário, os menus e a personalização das teclas. Essas interações ocorrem dinamicamente, sem recarregar a página inteira. O código também utiliza `preventDefault()` quando necessário. |
+| **3. Persistência de dados** | O projeto utiliza `localStorage` para armazenar informações dos salvamentos e configurações do jogador. Os dados podem ser recuperados mesmo após atualizar a página com **F5**, conforme teste realizado. |
+| **4. Ausência de erros no console** | A aplicação foi testada durante a navegação e a jogabilidade, sem apresentar erros vermelhos no console do **DevTools** durante o uso normal. |
+| **5. Responsividade e acessibilidade** | O projeto utiliza regras de responsividade no CSS para adaptar as interfaces a diferentes resoluções, incluindo dispositivos móveis. Também possui controles por toque, elementos HTML semânticos e textos alternativos nas imagens pertinentes. |
 
-Interação e coleta de objetos.
+## Melhorias realizadas
 
-Inventário com itens, missões e diário.
+Após os testes de usabilidade, foi implementada a possibilidade de **personalizar as teclas de movimentação e interação**, que anteriormente eram fixas.
 
-Menu de pausa.
+Essa alteração permite que o jogador adapte os comandos às suas preferências, melhorando a experiência de utilização.
 
-Salvamento do progresso do jogador.
+## Tecnologias utilizadas
 
-Personalização das teclas de movimentação e interação.
+- **HTML5:** estrutura das páginas e organização dos elementos.
+- **CSS3:** estilização, animações e responsividade.
+- **JavaScript:** movimentação, interatividade e funcionalidades do jogo.
+- **localStorage:** armazenamento de salvamentos e configurações.
+- **Git e GitHub:** versionamento e gerenciamento do código.
+- **GitHub Pages:** publicação da aplicação.
 
-Controles adaptados para computadores e dispositivos móveis.
+## Links do projeto
 
-Checklist dos cinco critérios técnicos
+- **Aplicação:** [Jogar The Mirror Within](https://the-mirror-of-within.github.io/The_mirror_of_within/)
+- **Repositório:** [GitHub - The Mirror Within](https://github.com/The-Mirror-of-Within/The_mirror_of_within)
 
-O README deve apresentar uma tabela confirmando como a aplicação atende a cada um dos seguintes critérios:
+---
 
-1. Publicação da aplicação
-
-O projeto está publicado no GitHub Pages e possui uma versão web jogável desenvolvida com HTML, CSS e JavaScript.
-
-2. Interatividade com JavaScript
-
-O jogo utiliza JavaScript para movimentação, interação com objetos, inventário, menus e personalização dos controles.
-
-As interações acontecem dinamicamente, sem recarregar a página inteira. O código utiliza preventDefault() quando necessário.
-
-3. Persistência de dados
-
-O projeto utiliza localStorage para armazenar salvamentos e configurações do jogador.
-
-Segundo os testes realizados, esses dados permanecem disponíveis mesmo após atualizar a página com F5.
-
-4. Ausência de erros no console
-
-A aplicação foi testada durante a navegação e a jogabilidade, sem apresentar erros vermelhos no console do DevTools durante o uso normal.
-
-5. Responsividade e acessibilidade
-
-O CSS contém regras de responsividade para diferentes resoluções, incluindo dispositivos móveis.
-
-O projeto também utiliza controles por toque, elementos HTML semânticos e textos alternativos nas imagens pertinentes.
-
-Melhoria realizada após os testes
-
-Uma das melhorias implementadas após a avaliação de usabilidade foi permitir que o jogador personalize as teclas de movimentação e interação.
-
-Anteriormente, esses comandos eram fixos. A mudança permite adaptar os controles às preferências de cada jogador.
-
-Tecnologias utilizadas
-
-HTML5: estrutura e organização dos elementos.
-
-CSS3: estilização, animações e responsividade.
-
-JavaScript: movimentação e interatividade.
-
-localStorage: persistência dos salvamentos e das configurações.
-
-Git e GitHub: versionamento e gerenciamento do código.
-
-GitHub Pages: publicação da aplicação.
-
+**Status:** Protótipo web jogável em desenvolvimento.
