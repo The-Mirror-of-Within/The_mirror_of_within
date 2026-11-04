@@ -1,7 +1,7 @@
 const CHAVE_SAVES = 'mirror_saves';
 const CHAVE_CONFIG = 'mirror_config';
 const CHAVE_SLOT = 'mirror_slot_atual';
-const CHAVE_ITENS = 'mirror_itens';
+const CHAVE_ITENS = 'mirror_itens'; // nome antigo, não usado nos novos salvamentos
 
 /* Armazenamento */
 
@@ -35,8 +35,29 @@ function configPadrao() {
     return {
         musica: 100,
         efeitos: 100,
-        telaCheia: true
+        telaCheia: true,
+        teclas: { cima: 'w', baixo: 's', esquerda: 'a', direita: 'd', interagir: 'r', inventario: 'g' }
     };
+}
+
+function lerConfig() {
+    const config = pegarJSON(CHAVE_CONFIG, configPadrao());
+    const padrao = configPadrao();
+    if (!config.teclas) config.teclas = padrao.teclas;
+    for (let acao in padrao.teclas) {
+        if (!config.teclas[acao]) config.teclas[acao] = padrao.teclas[acao];
+    }
+    return config;
+}
+
+function mostrarTecla(tecla) {
+    if (tecla === ' ') return 'Espaço';
+    return tecla.toUpperCase();
+}
+
+function criarNovoJogo() {
+    return { segundos: 0, capitulo: 1, x: 51, y: 74, versaoQuarto: 3,
+             chaPego: false, curativoPego: false, itens: [] };
 }
 
 /* Menu */
@@ -145,20 +166,22 @@ function iniciarSalvamento() {
                 const reiniciar = document.createElement('button');
                 reiniciar.className = 'icone-acao icone-reiniciar';
                 reiniciar.type = 'button';
-                reiniciar.innerHTML = '<img src="imagens/icone-reiniciar.png" alt="Reiniciar jogo">';
+                reiniciar.setAttribute('aria-label', 'Reiniciar jogo ' + (indice + 1));
+                reiniciar.innerHTML = '<img src="imagens/icone-reiniciar-novo.png" alt="">';
                 slot.appendChild(reiniciar);
 
                 const apagar = document.createElement('button');
                 apagar.className = 'icone-acao icone-lixeira';
                 apagar.type = 'button';
-                apagar.innerHTML = '<img src="imagens/icone-lixeira.png" alt="Apagar jogo">';
+                apagar.setAttribute('aria-label', 'Apagar jogo ' + (indice + 1));
+                apagar.innerHTML = '<img src="imagens/icone-lixeira.png" alt="">';
                 slot.appendChild(apagar);
 
                 reiniciar.addEventListener('click', function (evento) {
                     evento.stopPropagation();
 
                     if (confirm('Reiniciar este jogo?')) {
-                        saves[indice] = { segundos: 0, capitulo: 1 };
+                        saves[indice] = criarNovoJogo();
                         salvarJSON(CHAVE_SAVES, saves);
                         desenharSlots();
                         aviso.textContent = 'Jogo reiniciado.';
@@ -179,7 +202,7 @@ function iniciarSalvamento() {
 
             abrir.addEventListener('click', function () {
                 if (saves[indice] === null) {
-                    saves[indice] = { segundos: 0, capitulo: 1 };
+                    saves[indice] = criarNovoJogo();
                     salvarJSON(CHAVE_SAVES, saves);
                 }
 
@@ -197,65 +220,247 @@ function iniciarSalvamento() {
 /* Jogo */
 
 function iniciarJogo() {
+    const personagem = document.getElementById('personagem-jogo');
+    const sprite = document.getElementById('sprite-personagem');
     const pausa = document.getElementById('pausa');
-    const continuar = document.getElementById('continuar');
-    const salvarJogo = document.getElementById('salvar-jogo');
-    const aviso = document.getElementById('aviso');
-    const tempoJogo = document.getElementById('tempo-jogo');
+    const dica = document.getElementById('dica-interacao');
+    const mensagem = document.getElementById('mensagem-jogo');
+    const tempo = document.getElementById('tempo-jogo');
+    const controles = lerConfig().teclas;
+    const cha = document.getElementById('cha-chao');
+    const curativo = document.getElementById('curativo-chao');
 
     let saves = pegarJSON(CHAVE_SAVES, [null, null, null]);
     let indice = Number(localStorage.getItem(CHAVE_SLOT));
+    if (!Number.isInteger(indice) || indice < 0 || indice > 2) indice = 0;
+    if (!saves[indice]) saves[indice] = criarNovoJogo();
+    let jogo = saves[indice];
 
-    if (!Number.isInteger(indice) || !saves[indice]) {
-        indice = 0;
-        saves[0] = { segundos: 0, capitulo: 1 };
+    // Novos objetos e tamanhos, mantendo o tempo dos salvamentos antigos.
+    if (jogo.versaoQuarto !== 3) {
+        jogo.x = 51;
+        jogo.y = 74;
+        jogo.versaoQuarto = 3;
+        jogo.chaPego = false;
+        jogo.curativoPego = false;
+        jogo.itens = [];
     }
+    if (!Array.isArray(jogo.itens)) jogo.itens = [];
+
+    let x = jogo.x;
+    let y = jogo.y;
+    let direcao = 'frente';
+    let olhandoDireita = false;
+    let teclas = { cima: false, baixo: false, esquerda: false, direita: false };
+
+    // Os limites seguem as posições dos móveis definidas no CSS.
+    const obstaculos = [
+        { x1: 6, x2: 19, y1: 11, y2: 42 },     // Armário
+        { x1: 38, x2: 66, y1: 10, y2: 25 },    // Estante
+        { x1: 80, x2: 95, y1: 19, y2: 49 },    // Cômoda e televisão
+        { x1: 14, x2: 26, y1: 57, y2: 81 }    // Cama
+    ];
+    const objetos = [
+        { nome: 'Chá de Camomila', x: 70, y: 60, elemento: cha, pego: 'chaPego' },
+        { nome: 'Curativo', x: 34, y: 69, elemento: curativo, pego: 'curativoPego' }
+    ];
 
     function salvarProgresso() {
+        jogo.x = x;
+        jogo.y = y;
+        saves[indice] = jogo;
         salvarJSON(CHAVE_SAVES, saves);
     }
 
-    function atualizarTempo() {
-        tempoJogo.textContent = formatarTempo(saves[indice].segundos);
+    function atualizarPersonagem(andando) {
+        personagem.style.left = x + '%';
+        personagem.style.top = y + '%';
+        personagem.style.zIndex = Math.round(y) + 20;
+        personagem.classList.toggle('andando', andando);
+        if (sprite.dataset.direcao !== direcao) {
+            sprite.src = 'imagens/personagem-' + direcao + '.png';
+            sprite.dataset.direcao = direcao;
+        }
+        sprite.style.transform = direcao === 'lado' && olhandoDireita ? 'scaleX(-1)' : '';
+    }
+
+    function podeAndar(novoX, novoY) {
+        if (novoX < 5 || novoX > 95 || novoY < 21 || novoY > 95) return false;
+        for (let obstaculo of obstaculos) {
+            if (novoX > obstaculo.x1 - 1.5 && novoX < obstaculo.x2 + 1.5 &&
+                novoY > obstaculo.y1 - 1.5 && novoY < obstaculo.y2 + 1.5) return false;
+        }
+        return true;
+    }
+
+    function objetoProximo() {
+        for (let objeto of objetos) {
+            if (!jogo[objeto.pego] && Math.abs(x - objeto.x) < 8 && Math.abs(y - objeto.y) < 9) {
+                return objeto;
+            }
+        }
+        return null;
+    }
+
+    function atualizarObjetos() {
+        objetos.forEach(function (objeto) {
+            objeto.elemento.classList.toggle('escondido', jogo[objeto.pego] === true);
+        });
+        const proximo = objetoProximo();
+        dica.classList.toggle('escondido', !proximo || !pausa.classList.contains('escondido'));
+        if (proximo) dica.textContent = 'Pressione ' + mostrarTecla(controles.interagir) + ' para pegar ' + proximo.nome;
+    }
+
+    function mostrarMensagem(texto) {
+        mensagem.textContent = texto;
+        mensagem.classList.remove('escondido');
+    }
+
+    function interagir() {
+        if (!pausa.classList.contains('escondido')) return;
+        const objeto = objetoProximo();
+        if (!objeto) {
+            mostrarMensagem('Aproxime-se do chá ou do curativo para pegar.');
+            return;
+        }
+        jogo[objeto.pego] = true;
+        const encontrado = jogo.itens.find(function (item) { return item.nome === objeto.nome; });
+        if (encontrado) encontrado.quantidade++;
+        else jogo.itens.push({ nome: objeto.nome, quantidade: 1 });
+        salvarProgresso();
+        atualizarObjetos();
+        mostrarMensagem('Você pegou ' + objeto.nome + '!');
+    }
+
+    function limparMovimento() {
+        teclas = { cima: false, baixo: false, esquerda: false, direita: false };
+        personagem.classList.remove('andando');
+    }
+
+    function abrirPausa() {
+        pausa.classList.remove('escondido');
+        limparMovimento();
+        dica.classList.add('escondido');
+        mensagem.classList.add('escondido');
+        salvarProgresso();
+        document.getElementById('continuar').focus();
     }
 
     function fecharPausa() {
         pausa.classList.add('escondido');
-        aviso.textContent = '';
+        mensagem.classList.add('escondido');
+        atualizarObjetos();
     }
 
-    setInterval(function () {
-        if (pausa.classList.contains('escondido')) {
-            saves[indice].segundos++;
-            atualizarTempo();
+    function moverPersonagem() {
+        if (!pausa.classList.contains('escondido') || document.hidden) return;
+        let moverX = 0;
+        let moverY = 0;
+        if (teclas.esquerda) moverX--;
+        if (teclas.direita) moverX++;
+        if (teclas.cima) moverY--;
+        if (teclas.baixo) moverY++;
+        if (moverX === 0 && moverY === 0) {
+            personagem.classList.remove('andando');
+            return;
         }
-    }, 1000);
+        const velocidade = 0.38;
+        if (podeAndar(x + moverX * velocidade, y)) x += moverX * velocidade;
+        if (podeAndar(x, y + moverY * velocidade)) y += moverY * velocidade;
+        if (moverY > 0) direcao = 'frente';
+        if (moverY < 0) direcao = 'costas';
+        if (moverX !== 0) {
+            direcao = 'lado';
+            olhandoDireita = moverX > 0;
+        }
+        mensagem.classList.add('escondido');
+        atualizarPersonagem(true);
+        atualizarObjetos();
+    }
+
+    function direcaoDaTecla(tecla) {
+        if (tecla === 'arrowup' || tecla === controles.cima) return 'cima';
+        if (tecla === 'arrowdown' || tecla === controles.baixo) return 'baixo';
+        if (tecla === 'arrowleft' || tecla === controles.esquerda) return 'esquerda';
+        if (tecla === 'arrowright' || tecla === controles.direita) return 'direita';
+        return null;
+    }
 
     document.addEventListener('keydown', function (evento) {
-        if (evento.key === 'Escape') {
+        const tecla = evento.key.toLowerCase();
+        if (tecla === 'escape') {
             evento.preventDefault();
-            aviso.textContent = '';
-            pausa.classList.toggle('escondido');
+            if (pausa.classList.contains('escondido')) abrirPausa();
+            else fecharPausa();
+            return;
         }
-
-        if ((evento.key === 'Tab' || evento.key.toLowerCase() === 'g') && pausa.classList.contains('escondido')) {
+        if (!pausa.classList.contains('escondido')) return;
+        if (tecla === controles.inventario || tecla === 'tab') {
             evento.preventDefault();
             salvarProgresso();
             window.location.href = 'inventario.html';
+            return;
+        }
+        if (tecla === controles.interagir || tecla === 'e') {
+            evento.preventDefault();
+            if (!evento.repeat) interagir();
+            return;
+        }
+        const dir = direcaoDaTecla(tecla);
+        if (dir) {
+            evento.preventDefault();
+            teclas[dir] = true;
         }
     });
 
-    continuar.addEventListener('click', fecharPausa);
-
-    salvarJogo.addEventListener('click', function () {
-        salvarProgresso();
-        fecharPausa();
-        aviso.textContent = 'Jogo salvo.';
+    document.addEventListener('keyup', function (evento) {
+        const dir = direcaoDaTecla(evento.key.toLowerCase());
+        if (dir) teclas[dir] = false;
+    });
+    window.addEventListener('blur', limparMovimento);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) limparMovimento(); });
+    document.querySelectorAll('[data-direcao]').forEach(function (botao) {
+        const dir = botao.dataset.direcao;
+        botao.addEventListener('pointerdown', function (evento) {
+            evento.preventDefault();
+            teclas[dir] = true;
+            botao.setPointerCapture(evento.pointerId);
+        });
+        botao.addEventListener('pointerup', function () { teclas[dir] = false; });
+        botao.addEventListener('pointercancel', function () { teclas[dir] = false; });
+        botao.addEventListener('lostpointercapture', function () { teclas[dir] = false; });
     });
 
+    document.getElementById('botao-pausar').addEventListener('click', abrirPausa);
+    document.getElementById('botao-pegar').addEventListener('click', interagir);
+    document.getElementById('continuar').addEventListener('click', fecharPausa);
+    document.getElementById('salvar-jogo').addEventListener('click', function () {
+        salvarProgresso();
+        fecharPausa();
+        mostrarMensagem('Jogo salvo!');
+    });
+    document.querySelectorAll('.pausa a, .controles-toque a').forEach(function (link) {
+        link.addEventListener('click', salvarProgresso);
+    });
+    document.getElementById('dica-mover').textContent =
+        mostrarTecla(controles.cima) + ' ' + mostrarTecla(controles.esquerda) + ' ' +
+        mostrarTecla(controles.baixo) + ' ' + mostrarTecla(controles.direita) + ' / Setas · Andar';
+    document.getElementById('dica-pegar').textContent = mostrarTecla(controles.interagir) + ' / E · Interagir';
+    document.getElementById('dica-inventario').textContent = mostrarTecla(controles.inventario) + ' / Tab · Inventário';
+
+    setInterval(moverPersonagem, 30);
+    setInterval(function () {
+        if (pausa.classList.contains('escondido') && !document.hidden) {
+            jogo.segundos++;
+            tempo.textContent = formatarTempo(jogo.segundos);
+            salvarProgresso();
+        }
+    }, 1000);
     window.addEventListener('beforeunload', salvarProgresso);
-    window.addEventListener('pageshow', fecharPausa);
-    atualizarTempo();
+    tempo.textContent = formatarTempo(jogo.segundos);
+    atualizarPersonagem(false);
+    atualizarObjetos();
+    salvarProgresso();
 }
 
 /* Opções */
@@ -274,11 +479,12 @@ function iniciarOpcoes() {
     const cancelar = document.getElementById('cancelar');
     const restaurar = document.getElementById('restaurar');
     const aviso = document.getElementById('aviso');
+    const botoesTecla = document.querySelectorAll('.tecla-config');
+    let config = lerConfig();
+    let esperando = '';
 
-    let config = pegarJSON(CHAVE_CONFIG, configPadrao());
-
-    function limparAviso() {
-        aviso.textContent = '';
+    if (window.location.search.includes('voltar=jogo')) {
+        document.getElementById('voltar-opcoes').href = 'jogo-rodando.html';
     }
 
     function desenhar() {
@@ -287,68 +493,102 @@ function iniciarOpcoes() {
         musicaVal.textContent = config.musica + '%';
         efeitosVal.textContent = config.efeitos + '%';
         telaCheia.textContent = config.telaCheia ? 'ON' : 'OFF';
+        botoesTecla.forEach(function (botao) {
+            botao.textContent = esperando === botao.dataset.acao ? 'Pressione...' : mostrarTecla(config.teclas[botao.dataset.acao]);
+        });
     }
 
+    function limparAviso() { aviso.textContent = ''; }
     function abrirControles() {
         limparAviso();
+        esperando = '';
         abaControles.classList.add('aba-ativa');
         abaSistema.classList.remove('aba-ativa');
         painelControles.classList.remove('escondido');
         painelSistema.classList.add('escondido');
+        desenhar();
     }
-
     function abrirSistema() {
         limparAviso();
+        esperando = '';
         abaSistema.classList.add('aba-ativa');
         abaControles.classList.remove('aba-ativa');
         painelSistema.classList.remove('escondido');
         painelControles.classList.add('escondido');
+        desenhar();
     }
-
     abaControles.addEventListener('click', abrirControles);
     abaSistema.addEventListener('click', abrirSistema);
 
-    musica.addEventListener('input', function () {
-        limparAviso();
-        musicaVal.textContent = musica.value + '%';
+    botoesTecla.forEach(function (botao) {
+        botao.addEventListener('click', function () {
+            esperando = botao.dataset.acao;
+            aviso.textContent = 'Pressione uma tecla para: ' + botao.getAttribute('aria-label').replace('Mudar tecla para ', '') + '.';
+            desenhar();
+        });
+    });
+    document.addEventListener('keydown', function (evento) {
+        if (!esperando) return;
+        evento.preventDefault();
+        const tecla = evento.key.toLowerCase();
+        if (tecla === 'escape') { esperando = ''; desenhar(); limparAviso(); return; }
+        if (tecla === 'tab' || tecla === 'e' || tecla.startsWith('arrow') || tecla === 'enter' || tecla === 'shift' || tecla === 'control' || tecla === 'alt' || tecla === 'meta') {
+            aviso.textContent = 'Essa tecla é reservada. Escolha outra.';
+            return;
+        }
+        let repetida = false;
+        for (let acao in config.teclas) {
+            if (acao !== esperando && config.teclas[acao] === tecla) repetida = true;
+        }
+        if (repetida) {
+            aviso.textContent = 'Tecla já usada em outro comando.';
+            return;
+        }
+        config.teclas[esperando] = tecla;
+        esperando = '';
+        aviso.textContent = 'Tecla alterada. Clique em SALVAR para confirmar.';
+        desenhar();
     });
 
-    efeitos.addEventListener('input', function () {
-        limparAviso();
-        efeitosVal.textContent = efeitos.value + '%';
-    });
-
+    musica.addEventListener('input', function () { limparAviso(); musicaVal.textContent = musica.value + '%'; });
+    efeitos.addEventListener('input', function () { limparAviso(); efeitosVal.textContent = efeitos.value + '%'; });
     telaCheia.addEventListener('click', function () {
         limparAviso();
         config.telaCheia = !config.telaCheia;
         telaCheia.textContent = config.telaCheia ? 'ON' : 'OFF';
     });
-
     form.addEventListener('submit', function (evento) {
         evento.preventDefault();
-
+        esperando = '';
         config.musica = Number(musica.value);
         config.efeitos = Number(efeitos.value);
         salvarJSON(CHAVE_CONFIG, config);
-        aviso.textContent = 'Configurações salvas.';
+        desenhar();
+        aviso.textContent = 'Configurações e teclas salvas.';
     });
-
     cancelar.addEventListener('click', function () {
-        config = pegarJSON(CHAVE_CONFIG, configPadrao());
+        esperando = '';
+        config = lerConfig();
         desenhar();
         aviso.textContent = 'Alterações canceladas.';
     });
-
     restaurar.addEventListener('click', function () {
+        esperando = '';
         config = configPadrao();
         desenhar();
-        aviso.textContent = 'Valores padrão restaurados. Clique em SALVAR.';
+        aviso.textContent = 'Padrão restaurado. Clique em SALVAR.';
     });
-
     desenhar();
 }
 
 /* Inventário */
+
+function criarItensPadrao() {
+    return [
+        { nome: 'Chá de Camomila', imagem: 'imagens/cha-camomila.png', descricao: 'Um chá morno que acalma o corpo e a mente. Restaura 20 de PV.', frase: 'Às vezes, tudo que precisamos é de calma.', consumivel: true },
+        { nome: 'Curativo', imagem: 'imagens/curativo.png', descricao: 'Um curativo simples. Restaura 30 de PV.', frase: 'Melhor ter um por perto.', consumivel: true }
+    ];
+}
 
 function iniciarInventario() {
     const abas = document.querySelectorAll('.aba-inventario');
@@ -358,12 +598,7 @@ function iniciarInventario() {
     const examinar = document.getElementById('examinar-item');
     const descartar = document.getElementById('descartar-item');
 
-    const itensPadrao = [
-        { nome: 'Chá de Camomila', quantidade: 3, simbolo: '✿', descricao: 'Um chá morno que acalma o corpo e a mente. Restaura 20 de PV.', frase: '“Às vezes, tudo que a gente precisa é de um pouco de calma.”', consumivel: true },
-        { nome: 'Curativo', quantidade: 4, simbolo: '✚', descricao: 'Um curativo velho encontrado pelo caminho. Parece improvisado, mas ainda serve. Restaura 30 de PV.', frase: '“Melhor usar com cuidado.”', consumivel: true },
-        { nome: 'Chave Antiga', quantidade: 1, simbolo: '⚿', descricao: 'Uma chave antiga. Você ainda não sabe qual porta ela abre.', frase: '“A ferrugem cobre quase toda a chave.”', consumivel: false },
-        { nome: 'Pingente de Vidro', quantidade: 1, simbolo: '◇', descricao: 'Um pequeno pingente de vidro violeta. Parece importante.', frase: '“Ele parece guardar uma lembrança.”', consumivel: false }
-    ];
+
 
     const missoes = [
         {
@@ -393,8 +628,31 @@ function iniciarInventario() {
         { data: '24 de Junho', titulo: 'Chá de Camomila', texto: 'O chá ajudou. Pelo menos por alguns minutos.', pista: 'Talvez eu devesse guardar outro.' }
     ];
 
-    let itens = pegarJSON(CHAVE_ITENS, itensPadrao);
+    let saves = pegarJSON(CHAVE_SAVES, [null, null, null]);
+    let indice = Number(localStorage.getItem(CHAVE_SLOT));
+    if (!Number.isInteger(indice) || indice < 0 || indice > 2) indice = 0;
+    let jogo = saves[indice];
+    if (!jogo) {
+        jogo = criarNovoJogo();
+        saves[indice] = jogo;
+    }
+    if (!Array.isArray(jogo.itens)) jogo.itens = [];
+    const catalogo = criarItensPadrao();
+    let itens = [];
+    jogo.itens.forEach(function (salvo) {
+        const info = catalogo.find(function (item) { return item.nome === salvo.nome; });
+        if (info && salvo.quantidade > 0) {
+            itens.push({ nome: info.nome, quantidade: salvo.quantidade, imagem: info.imagem,
+                         descricao: info.descricao, frase: info.frase, consumivel: true });
+        }
+    });
     let itemAtual = 0;
+
+    function salvarItens() {
+        jogo.itens = itens.map(function (item) { return { nome: item.nome, quantidade: item.quantidade }; });
+        saves[indice] = jogo;
+        salvarJSON(CHAVE_SAVES, saves);
+    }
 
     function limparMensagem() {
         mensagem.textContent = '';
@@ -425,7 +683,7 @@ function iniciarInventario() {
     function mostrarSemItens() {
         document.getElementById('item-ilustracao').textContent = '';
         document.getElementById('item-nome').textContent = 'Inventário vazio';
-        document.getElementById('item-descricao').textContent = 'Você não está carregando nenhum item.';
+        document.getElementById('item-descricao').textContent = 'Procure o Chá de Camomila e o Curativo no quarto. Aproxime-se e pressione a tecla de interação para coletá-los.';
         document.getElementById('item-frase').textContent = '';
         usar.disabled = true;
         examinar.disabled = true;
@@ -437,7 +695,7 @@ function iniciarInventario() {
         limparMensagem();
 
         const item = itens[indice];
-        document.getElementById('item-ilustracao').textContent = item.simbolo;
+        document.getElementById('item-ilustracao').innerHTML = '<img class="imagem-item" src="' + item.imagem + '" alt="' + item.nome + '">';
         document.getElementById('item-nome').textContent = item.nome;
         document.getElementById('item-descricao').textContent = item.descricao;
         document.getElementById('item-frase').textContent = item.frase;
@@ -462,7 +720,7 @@ function iniciarInventario() {
             const botao = document.createElement('button');
             botao.type = 'button';
             botao.className = 'linha-item';
-            botao.innerHTML = '<span>' + item.nome + '</span><strong>x' + item.quantidade + '</strong>';
+            botao.innerHTML = '<span class="nome-item-lista"><img src="' + item.imagem + '" alt="">' + item.nome + '</span><strong>x' + item.quantidade + '</strong>';
             botao.addEventListener('click', function () {
                 mostrarItem(indice);
             });
@@ -579,7 +837,7 @@ function iniciarInventario() {
             itemAtual = 0;
         }
 
-        salvarJSON(CHAVE_ITENS, itens);
+        salvarItens();
         desenharItens();
         mensagem.textContent = nome + ' usado.';
     });
@@ -605,7 +863,7 @@ function iniciarInventario() {
                 itemAtual = 0;
             }
 
-            salvarJSON(CHAVE_ITENS, itens);
+            salvarItens();
             desenharItens();
             mensagem.textContent = nome + ' descartado.';
         }
