@@ -1,8 +1,7 @@
 const CHAVE_SAVES = 'mirror_saves';
 const CHAVE_CONFIG = 'mirror_config';
 const CHAVE_SLOT = 'mirror_slot_atual';
-const CHAVE_ITENS = 'mirror_itens'; // nome antigo, não usado nos novos salvamentos
-
+const CHAVE_ITENS = 'mirror_itens';
 /* Armazenamento */
 
 function pegarJSON(chave, padrao) {
@@ -236,7 +235,7 @@ function iniciarJogo() {
     if (!saves[indice]) saves[indice] = criarNovoJogo();
     let jogo = saves[indice];
 
-    // Novos objetos e tamanhos, mantendo o tempo dos salvamentos antigos.
+
     if (jogo.versaoQuarto !== 3) {
         jogo.x = 51;
         jogo.y = 74;
@@ -253,7 +252,6 @@ function iniciarJogo() {
     let olhandoDireita = false;
     let teclas = { cima: false, baixo: false, esquerda: false, direita: false };
 
-    // Os limites seguem as posições dos móveis definidas no CSS.
     const obstaculos = [
         { x1: 6, x2: 19, y1: 11, y2: 42 },     // Armário
         { x1: 38, x2: 66, y1: 10, y2: 25 },    // Estante
