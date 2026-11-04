@@ -6,30 +6,80 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Goldman:wght@400;700&display=swap" rel="stylesheet">
-    <title>The Mirror Within - Jogo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&display=swap" rel="stylesheet">
+    <title>The Mirror Within - Quarto</title>
 </head>
 <body id="jogo">
     <main class="stage stage-jogo-rodando">
-        <p class="texto-jogo-rodando">
-            <strong>jogo rodando</strong><br>
-            <span>(pressione “ESC” para pausar e “Tab” ou “G” para o inventário)</span><br>
-            <small id="tempo-jogo">00:00:00</small>
-        </p>
-        <p class="aviso-tela" id="aviso"></p>
+        <header class="jogo-topo">
+            <div>
+                <p class="jogo-capitulo">CAPÍTULO 1 · O COMEÇO</p>
+                <h1>THE MIRROR WITHIN</h1>
+            </div>
+            <div class="jogo-tempo-bloco">
+                <span>Tempo: <strong id="tempo-jogo">00:00:00</strong></span>
+                <button type="button" id="botao-pausar">PAUSAR <span>ESC</span></button>
+            </div>
+        </header>
+
+        <section class="cenario-jogo" id="cenario-jogo" aria-label="Quarto visto de cima, onde a personagem pode andar">
+            <div class="parede-cima" aria-hidden="true"></div>
+            <div class="parede-esquerda" aria-hidden="true"></div>
+            <div class="parede-direita" aria-hidden="true"></div>
+            <img class="objeto-quarto armario-quarto" src="imagens/armario.png" alt="Armário de madeira">
+            <img class="objeto-quarto estante-quarto" src="imagens/estante.png" alt="Estante com livros">
+            <img class="objeto-quarto cama-quarto" src="imagens/cama.png" alt="Cama da protagonista">
+            <img class="objeto-quarto comoda-quarto" src="imagens/comoda.png" alt="Cômoda de madeira">
+            <img class="objeto-quarto televisao-quarto" src="imagens/televisao.png" alt="Televisão antiga sobre a cômoda">
+            <div class="coletavel-quarto cha-chao" id="cha-chao" aria-label="Chá de Camomila no chão">
+                <img src="imagens/cha-camomila.png" alt="Chá de Camomila">
+                <span aria-hidden="true">✦</span>
+            </div>
+            <div class="coletavel-quarto curativo-chao" id="curativo-chao" aria-label="Curativo no chão">
+                <img src="imagens/curativo.png" alt="Curativo">
+                <span aria-hidden="true">✦</span>
+            </div>
+            <div class="personagem-jogo" id="personagem-jogo" aria-label="Protagonista">
+                <img id="sprite-personagem" data-direcao="frente" src="imagens/personagem-frente.png" alt="Protagonista vista de cima">
+                <div class="sombra-personagem"></div>
+            </div>
+            <p class="dica-interacao escondido" id="dica-interacao">Pressione R para coletar o item</p>
+            <p class="mensagem-jogo escondido" id="mensagem-jogo" role="status"></p>
+        </section>
+
+        <footer class="jogo-rodape">
+            <span id="dica-mover">W A S D / Setas · Andar</span>
+            <span id="dica-pegar">R / E · Interagir</span>
+            <span id="dica-inventario">G / Tab · Inventário</span>
+        </footer>
+
+        <nav class="controles-toque" aria-label="Controles do jogo para celular">
+            <div class="direcional-toque">
+                <button type="button" data-direcao="cima" aria-label="Andar para cima">▲</button>
+                <div class="linha-direcional">
+                    <button type="button" data-direcao="esquerda" aria-label="Andar para a esquerda">◀</button>
+                    <button type="button" data-direcao="baixo" aria-label="Andar para baixo">▼</button>
+                    <button type="button" data-direcao="direita" aria-label="Andar para a direita">▶</button>
+                </div>
+            </div>
+            <div class="acoes-toque">
+                <button type="button" id="botao-pegar">PEGAR</button>
+                <a href="inventario.html">MOCHILA</a>
+            </div>
+        </nav>
     </main>
 
     <div class="pausa escondido" id="pausa">
-        <div class="pausa-caixa">
-            <h2>Pausado</h2>
+        <div class="pausa-caixa" role="dialog" aria-modal="true" aria-labelledby="titulo-pausa">
+            <h2 id="titulo-pausa">Pausado</h2>
             <button type="button" id="continuar">CONTINUAR</button>
-            <a href="opcoes.html">OPÇÕES</a>
+            <a href="opcoes.html?voltar=jogo">CONTROLES / OPÇÕES</a>
             <button type="button" id="salvar-jogo">SALVAR</button>
+            <a href="inventario.html">INVENTÁRIO</a>
             <a href="salvamento.html">CARREGAR</a>
             <a href="index.html">SAIR DO JOGO</a>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
