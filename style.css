@@ -274,9 +274,9 @@ a {
 
 .slot-numero {
     position: absolute;
-    top: 76%;
+    top: 65%;
     left: 12.5%;
-    font-size: max(24px, 14.8cqw);
+    font-size: clamp(30px, 12cqw, 74px);
     pointer-events: none;
 }
 
@@ -291,11 +291,11 @@ a {
 
 .slot-capitulo {
     position: absolute;
-    top: 76.5%;
+    top: 65%;
     left: 46.8%;
     width: 46.8%;
     margin: 0;
-    font-size: max(14px, 5.5cqw);
+    font-size: clamp(16px, 5.1cqw, 31px);
     line-height: 1.15;
     pointer-events: none;
 }
@@ -311,28 +311,49 @@ a {
     pointer-events: none;
 }
 
-.icone-acao {
+/* Os botões de um save ficam FORA e ABAIXO da moldura. */
+.slot-botoes {
     position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    height: 46px;
     z-index: 5;
-    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 38px;
+    pointer-events: none;
+}
+
+.icone-acao {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 3px;
     border: 0;
-    background: none;
+    background: transparent;
     cursor: pointer;
+    pointer-events: auto;
     transition: transform 0.15s ease;
 }
 
-.icone-acao:hover {
-    transform: scale(1.12);
+.icone-acao:hover,
+.icone-acao:focus-visible {
+    transform: scale(1.08);
 }
 
 .icone-acao img {
     display: block;
     width: auto;
-    height: 100%;
+    height: 36px;
+    max-width: 100%;
+    object-fit: contain;
 }
 
-.icone-reiniciar { top: 100.3%; left: 26.7%; height: max(22px, 10.7cqw); }
-.icone-lixeira { top: 97.8%; left: 73.5%; height: max(36px, 19.2cqw); }
 
 .voltar-inicio {
     position: absolute;
@@ -1311,4 +1332,219 @@ a {
     .adesivos-diario {
         min-height: 82px;
     }
+}
+
+
+
+.stage-jogo-rodando {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 18px 14px 24px;
+    gap: 14px;
+    background: radial-gradient(ellipse at top, #39263f, #110c17 78%);
+    font-family: 'Pixelify Sans', sans-serif;
+}
+.stage-jogo-rodando::before { display: none; }
+.jogo-topo { width: min(100%, 900px); display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.jogo-capitulo { margin: 0 0 4px; color:#c9a4db; font:17px 'VT323',monospace; }
+.jogo-topo h1 { margin:0; font-size:clamp(19px,3vw,34px); font-weight:500; }
+.jogo-tempo-bloco { display:flex; align-items:center; gap:16px; font-size:clamp(12px,1.6vw,18px); white-space:nowrap; }
+.jogo-tempo-bloco button { padding:8px 14px; border:2px solid #9c27f3; background:#24182c; cursor:pointer; }
+.jogo-tempo-bloco button:hover { background:#6a2988; }
+.jogo-tempo-bloco button span { font:15px 'VT323',monospace; color:#e5ceef; }
+
+.cenario-jogo {
+    position:relative;
+    width:min(100%, 900px, calc((100dvh - 190px) * 4 / 3));
+    aspect-ratio: 4 / 3;
+    overflow:hidden;
+    border: 5px solid #261a2d;
+    outline:2px solid #8d6a9c;
+    box-shadow:0 16px 45px #000a;
+    background:#966e5f url('imagens/chao.png') center / 100% 100% no-repeat;
+    image-rendering:pixelated;
+    isolation:isolate;
+    animation:cresce .5s ease both;
+}
+.parede-cima { position:absolute; top:0; left:0; width:100%; height:8%; background:linear-gradient(#63516f 0%,#65506e 87%,#292132 87%,#292132 93%,#b7a099 93%); z-index:1; }
+.parede-esquerda,.parede-direita { position:absolute; top:0; bottom:0; width:2.4%; background:#55445e; z-index:2; box-shadow:inset -5px 0 0 #2f2936; }
+.parede-esquerda { left:0; }
+.parede-direita { right:0; box-shadow:inset 5px 0 0 #2f2936; }
+.objeto-quarto { position:absolute; display:block; object-fit:contain; image-rendering:pixelated; pointer-events:none; filter:drop-shadow(4px 7px 2px #301c2666); }
+.armario-quarto { width:11.5%; height:auto; left:6%; top:9%; z-index:28; }
+.estante-quarto { width:23%; height:auto; left:39%; top:10%; z-index:26; }
+.cama-quarto { width:10%; height:auto; left:14%; top:57%; z-index:80; }
+.comoda-quarto { width:12%; height:auto; left:82%; top:24%; z-index:54; }
+.televisao-quarto { width:9%; height:auto; left:83.5%; top:19%; z-index:55; }
+.xicara-quarto { display:none; }
+.personagem-jogo {
+    position:absolute;
+    left:51%; top:74%;
+    width:4.6%; height:10.5%;
+    min-width:18px; min-height:28px;
+    transform:translate(-50%,-100%);
+    pointer-events:none;
+    display:flex; align-items:flex-end; justify-content:center;
+    filter:drop-shadow(2px 3px 0 #21162588);
+}
+.personagem-jogo img { display:block; height:100%; width:auto; max-width:100%; image-rendering:pixelated; z-index:2; }
+.sombra-personagem { position:absolute; left:50%; bottom:0; width:72%; height:11%; background:#241c2966; border-radius:50%; transform:translateX(-50%); }
+.personagem-jogo.andando img { animation:passoPersonagem .23s linear infinite alternate; }
+@keyframes passoPersonagem { from { translate:0 0; } to { translate:0 -5%; } }
+.coletavel-quarto { position:absolute; width:4.5%; aspect-ratio:1; z-index:95; pointer-events:none; filter:drop-shadow(1px 3px 2px #241722); animation:flutuarItem 1.1s ease-in-out infinite alternate; }
+.coletavel-quarto img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
+.coletavel-quarto span { position:absolute; top:-16%; right:-5%; color:#fff3a6; font:clamp(10px,1.6vw,20px) 'Pixelify Sans',sans-serif; text-shadow:0 0 5px #dfc46d; }
+.cha-chao { left:67.8%; top:55.8%; }
+.curativo-chao { left:31.8%; top:64.8%; }
+@keyframes flutuarItem { from { transform:translateY(0); } to { transform:translateY(-5px); } }
+.dica-interacao,.mensagem-jogo { position:absolute; z-index:140; left:50%; transform:translateX(-50%); width:max-content; max-width:90%; border:2px solid #c49ae0; background:#180f21ee; padding:8px 14px; margin:0; font-size:clamp(11px,1.7vw,20px); text-align:center; }
+.dica-interacao { bottom:3%; }
+.mensagem-jogo { top:15%; }
+.jogo-rodape { width:min(100%,900px); display:flex; justify-content:center; flex-wrap:wrap; gap:6px 24px; font-size:clamp(12px,1.55vw,18px); color:#dbcde2; }
+.controles-toque { display:none; }
+
+.instrucoes-teclas { margin: 0 0 8px; color:#d4b7e8; font-size:clamp(12px,1.25vw,16px); }
+.tecla-config { color:#fff; cursor:pointer; min-width:72px; font-size:clamp(14px,1.5vw,20px); }
+.tecla-config:hover,.tecla-config:focus-visible { background:#643183; }
+.caixa-opcoes { overflow-y:auto; }
+
+@media (max-width:760px), (pointer:coarse) {
+    .stage-jogo-rodando { padding:10px 8px 18px; gap:10px; }
+    .jogo-topo { gap:6px; }
+    .jogo-topo h1 { font-size:clamp(15px,4.5vw,24px); }
+    .jogo-capitulo { font-size:13px; }
+    .jogo-tempo-bloco { gap:7px; font-size:12px; flex-wrap:wrap; justify-content:flex-end; }
+    .jogo-tempo-bloco button { padding:5px 7px; font-size:12px; }
+    .cenario-jogo { width:min(100%, 900px); aspect-ratio:4 / 3; flex:none; }
+    .jogo-rodape { font-size:12px; gap:5px 10px; }
+    .controles-toque { display:flex; width:min(100%,600px); justify-content:space-between; align-items:end; gap:12px; touch-action:manipulation; }
+    .direcional-toque { display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .linha-direcional { display:flex; align-items:center; gap:4px; }
+    .acoes-toque { display:flex; gap:7px; align-items:end; }
+    .controles-toque button,.controles-toque a { display:grid; place-items:center; min-width:48px; min-height:48px; border:2px solid #8c65a0; border-radius:5px; background:#2d2033; color:#fff; padding:6px 8px; font-size:16px; cursor:pointer; text-decoration:none; touch-action:none; user-select:none; }
+    .acoes-toque button,.acoes-toque a { min-width:69px; font-size:13px; }
+    .controles-toque button:active { background:#7a39a2; }
+    .instrucoes-teclas { padding:0 4px; line-height:1.2; }
+    .tabela-controles { min-width:520px; }
+    .caixa-opcoes { overflow:auto; }
+}
+@media (max-width:400px) {
+    .controles-toque button,.controles-toque a { min-width:42px; min-height:43px; padding:3px; }
+    .acoes-toque button,.acoes-toque a { min-width:60px; font-size:12px; }
+    .jogo-topo h1 { font-size:15px; }
+    .jogo-tempo-bloco { font-size:11px; }
+}
+@media (prefers-reduced-motion:reduce) {
+    .personagem-jogo.andando img, .coletavel-quarto { animation:none; }
+}
+
+@media (max-width:760px) {
+    .botoes-opcoes { gap:6px; }
+    .botao-opcao { flex:1; width:auto; max-width:none; min-height:44px; font-size:clamp(11px,3vw,15px); }
+    .tabela-controles { display:block; width:100%; min-width:0; border-spacing:0; }
+    .tabela-controles thead { display:none; }
+    .tabela-controles tbody { display:block; }
+    .tabela-controles tbody tr { display:grid; grid-template-columns:1fr 1fr; gap:4px 8px; padding:8px 0; border-bottom:1px solid #72458a; }
+    .tabela-controles tbody th { grid-column:1/-1; font-size:16px; }
+    .tabela-controles tbody td { min-width:0; }
+    .tabela-controles .caixa-tecla { min-height:38px; white-space:normal; text-align:center; }
+    .tecla-config { min-width:0; width:100%; }
+}
+
+.ajuda-controles-mobile { display:none; }
+@media (max-width:760px), (pointer:coarse) {
+    .instrucoes-teclas { display:none; }
+    .tabela-controles { display:none; }
+    .ajuda-controles-mobile {
+        display:block;
+        padding:16px 18px;
+        border:1px solid #a76cc0;
+        background:rgba(30,18,39,.77);
+        border-radius:10px;
+        color:#fff;
+        font-size:clamp(16px,4vw,21px);
+        line-height:1.3;
+    }
+    .ajuda-controles-mobile p { margin:0 0 12px; }
+    .ajuda-controles-mobile p:last-child { margin-bottom:0; }
+}
+
+.nome-item-lista { display:flex; align-items:center; gap:12px; }
+.nome-item-lista img { width:34px; height:34px; flex:none; object-fit:contain; image-rendering:pixelated; }
+.item-ilustracao img.imagem-item { display:block; height:min(80%,165px); width:min(80%,165px); object-fit:contain; image-rendering:pixelated; filter:drop-shadow(2px 6px 3px #0006); }
+@media(max-width:760px) {
+  .nome-item-lista {gap:6px;}
+  .nome-item-lista img {width:24px;height:24px;}
+  .item-ilustracao img.imagem-item {height:min(78%,95px); width:min(78%,95px);}
+}
+
+/* Inventário compacto em telas de celular, sem espaços vazios enormes. */
+@media (max-width: 760px) {
+    .lista-coluna {
+        min-height: 0;
+        grid-template-rows: minmax(110px,auto) minmax(26px,auto) 70px auto;
+    }
+    .lista-itens { padding: 14px 12px 8px; }
+    .linha-item { font-size:clamp(18px,5.2vw,24px); padding: 0.45em 0.55em; }
+    .texto-inferior { min-height:94px; padding: 12px 7%; font-size:clamp(17px,4.8vw,22px); }
+    .detalhe-coluna { grid-template-rows: 135px auto auto auto auto; }
+    .detalhe-coluna h2 { font-size:clamp(20px,5.4vw,26px); }
+    .detalhe-coluna > p { font-size:clamp(16px,4.1vw,20px); }
+    .item-ilustracao img.imagem-item { max-height:100px; }
+}
+
+
+.stage-salvamento .voltar-inicio {
+    right: 3%;
+    bottom: 1%;
+    font-size: clamp(20px, 2.5vw, 32px);
+}
+
+@media (max-width: 760px), (pointer: coarse) {
+    .stage-salvamento .slot {
+        margin: 0 auto 58px;
+    }
+    .stage-salvamento .slot-botoes {
+        top: calc(100% + 5px);
+        height: 44px;
+        gap: 40px;
+    }
+    .stage-salvamento .voltar-inicio {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        justify-content: center;
+        margin-top: 20px;
+        font-size: clamp(24px, 6vw, 34px);
+    }
+}
+
+
+.stage-salvamento .slot > .icone-acao {
+    position: absolute;
+    top: calc(100% + 4px);
+    z-index: 6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 3px;
+}
+.stage-salvamento .slot > .icone-reiniciar {
+    left: calc(50% - 65px);
+}
+.stage-salvamento .slot > .icone-lixeira {
+    left: calc(50% + 19px);
+}
+.stage-salvamento .slot > .icone-acao img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.stage-salvamento .slot > .icone-lixeira img {
+    transform: scale(1.95);
 }
