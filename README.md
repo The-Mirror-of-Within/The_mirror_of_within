@@ -47,5 +47,3 @@ Essa alteração permite que o jogador adapte os comandos às suas preferências
 - **Repositório:** [GitHub - The Mirror Within](https://github.com/The-Mirror-of-Within/The_mirror_of_within)
 
 ---
-
-**Status:** Protótipo web jogável em desenvolvimento.
